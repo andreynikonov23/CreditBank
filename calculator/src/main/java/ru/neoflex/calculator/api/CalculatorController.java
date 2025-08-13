@@ -1,0 +1,51 @@
+package ru.neoflex.calculator.api;
+
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.internal.constraintvalidators.bv.NotBlankValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
+import ru.neoflex.calculator.dto.CreditDto;
+import ru.neoflex.calculator.dto.LoanOfferDto;
+import ru.neoflex.calculator.dto.LoanStatementRequestDto;
+import ru.neoflex.calculator.dto.ScoringDataDto;
+import ru.neoflex.calculator.service.CreditCalculator;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/calculator")
+@Slf4j
+public class CalculatorController {
+    private final CreditCalculator creditCalculator;
+
+    @Autowired
+    public CalculatorController(CreditCalculator creditCalculatorService) {
+        this.creditCalculator = creditCalculatorService;
+    }
+
+    @PostMapping("/offers")
+    public List<LoanOfferDto> offers(@Valid @RequestBody LoanStatementRequestDto loanStatementRequestDto) {
+        log.info("/calculator/offers with body: " + loanStatementRequestDto);
+        return creditCalculator.calculateLoanTerms(loanStatementRequestDto);
+    }
+
+    @PostMapping("/calc")
+    public CreditDto calc(@Valid @RequestBody ScoringDataDto scoringDataDto) {
+        log.info("/calculator/calc with body: " + scoringDataDto);
+        return creditCalculator.calc(scoringDataDto);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<List<String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        List<String> errors = ex.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
+        log.debug("valid error: " + errors);
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+}
