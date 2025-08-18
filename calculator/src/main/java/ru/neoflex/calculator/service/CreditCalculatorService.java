@@ -44,7 +44,6 @@ public class CreditCalculatorService implements CreditCalculator{
                 CreditAmountDto creditAmountDto = calcCreditAmount(requiredAmount, term, rate, isInsuranceEnable);
 
                 LoanOfferDto loanOfferDto = new LoanOfferDto();
-                loanOfferDto.setStatementId(UUID.randomUUID());
                 loanOfferDto.setRequestedAmount(requiredAmount);
                 loanOfferDto.setTotalAmount(creditAmountDto.getPsk());
                 loanOfferDto.setTerm(term);

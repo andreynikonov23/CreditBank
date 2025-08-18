@@ -23,7 +23,7 @@ public class TestData {
         scoringDataDto.setDependentAmount(0);
 
         EmploymentDto employmentDto = new EmploymentDto();
-        employmentDto.setEmploymentStatus(EmploymentStatus.OFFICIAL_EMPLOYED);
+        employmentDto.setEmploymentStatus(EmploymentStatus.EMPLOYED);
         employmentDto.setEmployerINN("1234567890");
         employmentDto.setSalary(new BigDecimal("60000.00"));
         employmentDto.setPosition(Position.WORKER);
@@ -54,7 +54,7 @@ public class TestData {
         scoringDataDto.setDependentAmount(0);
 
         EmploymentDto employmentDto = new EmploymentDto();
-        employmentDto.setEmploymentStatus(EmploymentStatus.OFFICIAL_EMPLOYED);
+        employmentDto.setEmploymentStatus(EmploymentStatus.EMPLOYED);
         employmentDto.setEmployerINN("123456");
         employmentDto.setSalary(new BigDecimal("60000.00"));
         employmentDto.setPosition(Position.WORKER);

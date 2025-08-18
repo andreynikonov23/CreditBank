@@ -21,9 +21,7 @@ public class LoanStatementRequestDto {
     private String firstname;
     @NotNull(message = "lastname is empty")
     private String lastname;
-    @NotNull(message = "middleName is empty")
     private String middleName;
-    @NotNull(message = "email is empty")
     @Email(message = "invalid email")
     private String email;
     @NotNull(message = "amount is empty")
