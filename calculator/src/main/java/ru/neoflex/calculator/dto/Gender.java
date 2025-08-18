@@ -2,5 +2,6 @@ package ru.neoflex.calculator.dto;
 
 public enum Gender {
     MALE,
-    FEMALE
+    FEMALE,
+    NON_BINARY
 }

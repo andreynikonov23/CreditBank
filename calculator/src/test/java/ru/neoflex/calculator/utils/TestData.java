@@ -8,8 +8,8 @@ import java.time.LocalDate;
 public class TestData {
     public static ScoringDataDto getValidScoringDataDto() {
         ScoringDataDto scoringDataDto = new ScoringDataDto();
-        scoringDataDto.setAmount(BigDecimal.valueOf(5000000));
-        scoringDataDto.setTerm(10);
+        scoringDataDto.setAmount(BigDecimal.valueOf(2500000));
+        scoringDataDto.setTerm(7);
         scoringDataDto.setFirstname("John");
         scoringDataDto.setLastname("Doe");
         scoringDataDto.setMiddleName("Smith");
@@ -22,13 +22,7 @@ public class TestData {
         scoringDataDto.setMaritalStatus(MaritalStatus.SINGLE);
         scoringDataDto.setDependentAmount(0);
 
-        EmploymentDto employmentDto = new EmploymentDto();
-        employmentDto.setEmploymentStatus(EmploymentStatus.EMPLOYED);
-        employmentDto.setEmployerINN("1234567890");
-        employmentDto.setSalary(new BigDecimal("60000.00"));
-        employmentDto.setPosition(Position.WORKER);
-        employmentDto.setWorkExperienceTotal(5);
-        employmentDto.setWorkExperienceCurrent(2);
+        EmploymentDto employmentDto = getValidEmploymentDto();
         scoringDataDto.setEmployment(employmentDto);
 
         scoringDataDto.setAccountNumber("12345678901234567890");
@@ -96,5 +90,17 @@ public class TestData {
         loanStatementRequestDto.setPassportSeries("56gk90");
 
         return loanStatementRequestDto;
+    }
+
+    public static EmploymentDto getValidEmploymentDto() {
+        EmploymentDto employmentDto = new EmploymentDto();
+        employmentDto.setEmploymentStatus(EmploymentStatus.EMPLOYED);
+        employmentDto.setEmployerINN("1234567890");
+        employmentDto.setSalary(new BigDecimal("120000.00"));
+        employmentDto.setPosition(Position.WORKER);
+        employmentDto.setWorkExperienceTotal(1825);
+        employmentDto.setWorkExperienceCurrent(1095);
+
+        return employmentDto;
     }
 }

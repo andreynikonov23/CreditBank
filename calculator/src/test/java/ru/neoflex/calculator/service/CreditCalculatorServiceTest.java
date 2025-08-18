@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.neoflex.calculator.dto.*;
+import ru.neoflex.calculator.exceptions.ScoringException;
 import ru.neoflex.calculator.utils.TestData;
 
 import java.math.BigDecimal;
@@ -35,7 +36,7 @@ public class CreditCalculatorServiceTest {
     }
 
     @Test
-    public void calcTest() {
+    public void calcTest() throws ScoringException {
         ScoringDataDto scoringDataDto = TestData.getValidScoringDataDto();
 
         CreditDto credit = creditCalculatorService.calc(scoringDataDto);

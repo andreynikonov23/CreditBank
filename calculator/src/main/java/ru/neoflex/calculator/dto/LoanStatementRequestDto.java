@@ -14,13 +14,17 @@ import java.util.Objects;
 @Setter
 public class LoanStatementRequestDto {
     @NotNull(message = "amount is empty")
+    @Min(value = 20000, message = "the amount must be greater than or equal to 20000")
     private BigDecimal amount;
-    @Positive(message = "term must be greater than 0")
+    @Min(value = 6, message = "the term must be greater than or equal to 6")
     private int term;
     @NotNull(message = "firstname is empty")
+    @Size(min = 2, max = 20, message = "The firstname must be between 2 and 20 Latin characters long.")
     private String firstname;
     @NotNull(message = "lastname is empty")
+    @Size(min = 2, max = 20, message = "The lastname must be between 2 and 20 Latin characters long.")
     private String lastname;
+    @Size(min = 2, max = 20, message = "The middleName must be between 2 and 20 Latin characters long.")
     private String middleName;
     @Email(message = "invalid email")
     private String email;

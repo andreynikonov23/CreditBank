@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.neoflex.calculator.dto.*;
+import ru.neoflex.calculator.exceptions.ScoringException;
 import ru.neoflex.calculator.utils.CreditAmountDto;
 
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ import java.util.List;
 @Service
 @Slf4j
 public class CreditCalculatorService implements CreditCalculator{
+    private final Scoring scoring;
     @Value("${credit.base_rate}")
     private BigDecimal baseRate;
     @Value("${credit.insurance_cost_percent}")
@@ -24,6 +26,10 @@ public class CreditCalculatorService implements CreditCalculator{
     private BigDecimal salaryClientDiscount;
     @Value("${credit.insurance_discount}")
     private BigDecimal insuranceDiscount;
+
+    public CreditCalculatorService(Scoring scoring) {
+        this.scoring = scoring;
+    }
 
     @Override
     public List<LoanOfferDto> calculateLoanTerms(LoanStatementRequestDto requestDto) {
@@ -61,8 +67,9 @@ public class CreditCalculatorService implements CreditCalculator{
     }
 
     @Override
-    public CreditDto calc(ScoringDataDto dataDto) {
+    public CreditDto calc(ScoringDataDto dataDto) throws ScoringException {
         log.info("The beginning of the loan calculation based on scoring data: {}", dataDto);
+
         BigDecimal requiredAmount = dataDto.getAmount();
         int term = dataDto.getTerm();
         boolean isInsuranceEnabled = dataDto.isInsuranceEnabled();
@@ -71,6 +78,8 @@ public class CreditCalculatorService implements CreditCalculator{
         log.debug("Parameters for calculating the loan: requiredAmount = {}, term = {}, isInsuranceEnabled = {}, isSalaryClient = {}", requiredAmount, term, isInsuranceEnabled, isSalaryClient);
 
         BigDecimal rate = calcRate(isInsuranceEnabled, isSalaryClient);
+        rate = scoring.scoreRate(rate, dataDto);
+
         CreditAmountDto creditAmountDto = calcCreditAmount(requiredAmount, term, rate, isInsuranceEnabled);
         BigDecimal psk = creditAmountDto.getPsk();
         BigDecimal monthlyPayment = creditAmountDto.getMonthlyPayment();

@@ -8,10 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import ru.neoflex.calculator.dto.CreditDto;
-import ru.neoflex.calculator.dto.LoanOfferDto;
-import ru.neoflex.calculator.dto.LoanStatementRequestDto;
-import ru.neoflex.calculator.dto.ScoringDataDto;
+import ru.neoflex.calculator.dto.*;
+import ru.neoflex.calculator.exceptions.ScoringException;
 import ru.neoflex.calculator.service.CreditCalculator;
 
 import java.util.List;
@@ -34,7 +32,7 @@ public class CalculatorController {
     }
 
     @PostMapping("/calc")
-    public CreditDto calc(@Valid @RequestBody ScoringDataDto scoringDataDto) {
+    public CreditDto calc(@Valid @RequestBody ScoringDataDto scoringDataDto) throws ScoringException {
         log.info("/calculator/calc with body: " + scoringDataDto);
         return creditCalculator.calc(scoringDataDto);
     }
@@ -44,5 +42,12 @@ public class CalculatorController {
         List<String> errors = ex.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
         log.debug("valid error: " + errors);
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleScoringExceptions(ScoringException ex) {
+        String errorMessage = "the request failed scoring: " + ex.getMessage();
+        log.debug(errorMessage);
+        return new ResponseEntity<>(errorMessage, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }
