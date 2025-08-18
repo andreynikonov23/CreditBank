@@ -10,10 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import ru.neoflex.calculator.dto.CreditDto;
-import ru.neoflex.calculator.dto.LoanOfferDto;
-import ru.neoflex.calculator.dto.LoanStatementRequestDto;
-import ru.neoflex.calculator.dto.ScoringDataDto;
+import ru.neoflex.calculator.dto.*;
 import ru.neoflex.calculator.utils.TestData;
 
 import java.util.ArrayList;
@@ -113,5 +110,24 @@ public class CalculatorControllerTest {
 
         assertEquals(expectedErrors.size(), actualErrors.size());
         expectedErrors.forEach(error -> assertTrue(actualErrors.contains(error)));
+    }
+
+    @Test
+    public void handleScoringExceptionTest() throws Exception {
+        ScoringDataDto scoringDataDto = TestData.getValidScoringDataDto();
+        scoringDataDto.getEmployment().setEmploymentStatus(EmploymentStatus.UNEMPLOYED);
+
+        String jsonRequestBody = objectMapper.writeValueAsString(scoringDataDto);
+        MvcResult result = mockMvc.perform(
+                MockMvcRequestBuilders.post("/calculator/calc")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequestBody)
+        )
+                .andExpect(MockMvcResultMatchers.status().isUnprocessableEntity())
+                .andReturn();
+
+        String body = result.getResponse().getContentAsString();
+
+        assertEquals("the request failed scoring: the client is unemployed", body);
     }
 }
