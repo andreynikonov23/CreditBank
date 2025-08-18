@@ -18,11 +18,11 @@ import java.util.UUID;
 public class LoanOfferDto implements Comparable<LoanOfferDto> {
     @NotNull(message = "statementId is null")
     private UUID statementId;
-    @Min(value = 0, message = "requestedAmount must be greater than 0")
+    @Min(value = 20000, message = "the amount must be greater than or equal to 20000")
     private BigDecimal requestedAmount;
-    @Min(value = 0, message = "totalAmount must be greater than 0")
+    @Min(value = 20000, message = "the amount must be greater than or equal to 20000")
     private BigDecimal totalAmount;
-    @Min(value = 0, message = "totalAmount must be greater than 0")
+    @Min(value = 6, message = "the term must be greater than or equal to 6")
     private int term;
     @Min(value = 0, message = "totalAmount must be greater than 0")
     private BigDecimal monthlyPayment;

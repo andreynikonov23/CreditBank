@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.neoflex.deal.client.CalculatorApiClient;
 import ru.neoflex.deal.dao.DAO;
+import ru.neoflex.deal.exceptions.ScoringException;
 import ru.neoflex.deal.model.Client;
 import ru.neoflex.deal.model.Credit;
 import ru.neoflex.deal.model.Statement;
@@ -66,7 +67,15 @@ public class DealServiceImpl implements DealService {
         setFinishDataForClient(client, finishRegistrationRequestDto);
         clientDAO.savaAndFlush(client);
         ScoringDataDto scoringDataDto = ModelFactory.initScoringDataDto(statement);
-        CreditDto creditDto =  calculatorApiClient.calc(scoringDataDto);
+
+        CreditDto creditDto = null;
+        try {
+            creditDto = calculatorApiClient.calc(scoringDataDto);
+        } catch (ScoringException e) {
+            deniedStatement(statement);
+            return;
+        }
+
         Credit credit = ModelFactory.createCreditByDto(creditDto);
         creditDAO.savaAndFlush(credit);
         setCreditForStatement(statement, credit);
@@ -115,5 +124,16 @@ public class DealServiceImpl implements DealService {
         client.setEmploymentDto(finishRegistrationRequestDto.getEmploymentDto());
         client.setAccountNumber(finishRegistrationRequestDto.getAccountNumber());
         log.debug("the client's registration data has been entered: {}", client);
+    }
+
+    private void deniedStatement(Statement statement) {
+        statement.setStatus(ApplicationStatus.CC_DENIED);
+
+        StatementStatusHistoryDto statementStatusHistoryDto = new StatementStatusHistoryDto();
+        statementStatusHistoryDto.setStatus("statement denied");
+        statementStatusHistoryDto.setChangeType(ChangeType.AUTOMATIC);
+        statementStatusHistoryDto.setTime(LocalDate.now());
+        statement.getStatusHistory().add(statementStatusHistoryDto);
+        log.debug("statement [{}] - denied", statement);
     }
 }

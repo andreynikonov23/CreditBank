@@ -2,11 +2,13 @@ package ru.neoflex.deal.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
+import ru.neoflex.deal.exceptions.ScoringException;
 import ru.neoflex.deal.model.dto.CreditDto;
 import ru.neoflex.deal.model.dto.LoanOfferDto;
 import ru.neoflex.deal.model.dto.LoanStatementRequestDto;
@@ -58,8 +60,15 @@ public class CalculatorApiClientImpl implements CalculatorApiClient{
                             HttpStatusCode status = response.getStatusCode();
                             String statusText = response.getStatusText();
                             log.error("request sending error {}{}: Error {} -> {}", calculatorUri, endpoint, status, statusText);
-                            throw new HttpClientErrorException(response.getStatusCode(), response.getStatusText());
+                            throw new HttpClientErrorException(status, statusText);
                         }))
+                .onStatus(HttpStatus.UNPROCESSABLE_ENTITY::equals,
+                        (request, response) -> {
+                            HttpStatusCode status = response.getStatusCode();
+                            String statusText = response.getStatusText();
+                            log.error("request sending error {}{}: Error {} -> {}", calculatorUri, endpoint, status, statusText);
+                            throw new ScoringException(status, statusText);
+                        })
                 .body(CreditDto.class);
 
         log.debug("the request was successfully {}{} offers executed. Result: {}", calculatorUri, endpoint, creditDto);
