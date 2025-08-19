@@ -1,7 +1,9 @@
 package ru.neoflex.deal.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,12 +20,18 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.client.HttpClientErrorException;
 import ru.neoflex.deal.client.CalculatorApiClient;
+import ru.neoflex.deal.dao.DAO;
+import ru.neoflex.deal.exceptions.ScoringException;
+import ru.neoflex.deal.model.Client;
+import ru.neoflex.deal.model.Statement;
 import ru.neoflex.deal.model.dto.FinishRegistrationRequestDto;
 import ru.neoflex.deal.model.dto.LoanOfferDto;
 import ru.neoflex.deal.model.dto.LoanStatementRequestDto;
+import ru.neoflex.deal.model.dto.ScoringDataDto;
 import ru.neoflex.deal.service.DealService;
 import ru.neoflex.deal.utils.TestData;
 
+import javax.swing.plaf.nimbus.State;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;

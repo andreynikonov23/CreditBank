@@ -51,7 +51,7 @@ public class ScoringDataDto {
     private MaritalStatus maritalStatus;
     @Min(value = 0, message = "dependentAmount must not be less than 0")
     private int dependentAmount;
-    private EmploymentDto employmentDto;
+    private EmploymentDto employment;
     @NotNull(message = "accountNumber is empty")
     private String accountNumber;
     private boolean isInsuranceEnabled;
@@ -64,13 +64,13 @@ public class ScoringDataDto {
                         "passportIssueBranch: %s, maritalStatus: %s, dependentAmount: %d, employment: %s, accountNumber: %s," +
                         "isInsuranceEnabled: %b, isSalaryClient: %b}",
                 amount, term, firstname, lastname, middleName, gender, birthdate, passportSeries, passportNumber, passportIssueDate,
-                passportIssueBranch, maritalStatus, dependentAmount, employmentDto, accountNumber, isInsuranceEnabled, isSalaryClient);
+                passportIssueBranch, maritalStatus, dependentAmount, employment, accountNumber, isInsuranceEnabled, isSalaryClient);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(amount, term, firstname, lastname, middleName, gender, birthdate, passportSeries, passportNumber,
-                passportIssueDate, passportIssueBranch, maritalStatus, dependentAmount, employmentDto, accountNumber, isInsuranceEnabled, isSalaryClient);
+                passportIssueDate, passportIssueBranch, maritalStatus, dependentAmount, employment, accountNumber, isInsuranceEnabled, isSalaryClient);
     }
 
     @Override
@@ -91,7 +91,7 @@ public class ScoringDataDto {
                 && passportSeries.equals(otherSDD.getPassportSeries()) && passportNumber.equals(otherSDD.getPassportNumber())
                 && passportIssueDate.equals(otherSDD.getPassportIssueDate()) && passportIssueBranch.equals(otherSDD.getPassportIssueBranch())
                 && maritalStatus.equals(otherSDD.getMaritalStatus()) && dependentAmount == otherSDD.getDependentAmount()
-                && employmentDto.equals(otherSDD.getEmploymentDto()) && accountNumber.equals(otherSDD.getAccountNumber())
+                && employment.equals(otherSDD.getEmployment()) && accountNumber.equals(otherSDD.getAccountNumber())
                 && isInsuranceEnabled == otherSDD.isInsuranceEnabled() && isSalaryClient == otherSDD.isSalaryClient();
     }
 }

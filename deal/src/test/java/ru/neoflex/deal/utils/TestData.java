@@ -135,14 +135,7 @@ public class TestData {
         finishRegistrationRequestDto.setPassportIssueBranch("ГУ МВД по Нижегородской области");
         finishRegistrationRequestDto.setAccountNumber("12482191");
 
-        EmploymentDto employmentDto = new EmploymentDto();
-        employmentDto.setEmploymentUUID(UUID.randomUUID());
-        employmentDto.setEmploymentStatus(EmploymentStatus.EMPLOYED);
-        employmentDto.setEmployerINN("214264958195");
-        employmentDto.setSalary(BigDecimal.valueOf(184000));
-        employmentDto.setPosition(EmploymentPosition.TOP_MANAGER);
-        employmentDto.setWorkExperienceTotal(4380);
-        employmentDto.setWorkExperienceCurrent(730);
+        EmploymentDto employmentDto = getValidEmploymentDto();
 
         finishRegistrationRequestDto.setEmploymentDto(employmentDto);
         return finishRegistrationRequestDto;
@@ -160,5 +153,43 @@ public class TestData {
         creditDto.setSalaryClient(true);
 
         return creditDto;
+    }
+
+    public static ScoringDataDto getValidScoringDataDto() {
+        ScoringDataDto scoringDataDto = new ScoringDataDto();
+        scoringDataDto.setAmount(BigDecimal.valueOf(2500000));
+        scoringDataDto.setTerm(7);
+        scoringDataDto.setFirstname("John");
+        scoringDataDto.setLastname("Doe");
+        scoringDataDto.setMiddleName("Smith");
+        scoringDataDto.setGender(Gender.MALE);
+        scoringDataDto.setBirthdate(LocalDate.now().minusYears(30));
+        scoringDataDto.setPassportSeries("1234");
+        scoringDataDto.setPassportNumber("567890");
+        scoringDataDto.setPassportIssueDate(LocalDate.now().plusMonths(10));
+        scoringDataDto.setPassportIssueBranch("Some Branch");
+        scoringDataDto.setMaritalStatus(MaritalStatus.SINGLE);
+        scoringDataDto.setDependentAmount(0);
+
+        EmploymentDto employmentDto = getValidEmploymentDto();
+        scoringDataDto.setEmploymentDto(employmentDto);
+
+        scoringDataDto.setAccountNumber("12345678901234567890");
+        scoringDataDto.setInsuranceEnabled(true);
+        scoringDataDto.setSalaryClient(false);
+
+        return scoringDataDto;
+    }
+
+    public static EmploymentDto getValidEmploymentDto() {
+        EmploymentDto employmentDto = new EmploymentDto();
+        employmentDto.setEmploymentStatus(EmploymentStatus.EMPLOYED);
+        employmentDto.setEmployerINN("1234567890");
+        employmentDto.setSalary(new BigDecimal("120000.00"));
+        employmentDto.setPosition(EmploymentPosition.WORKER);
+        employmentDto.setWorkExperienceTotal(1825);
+        employmentDto.setWorkExperienceCurrent(1095);
+
+        return employmentDto;
     }
 }

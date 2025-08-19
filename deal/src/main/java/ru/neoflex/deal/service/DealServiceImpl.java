@@ -65,15 +65,16 @@ public class DealServiceImpl implements DealService {
         Statement statement = statementDAO.findById(statementUUID);
         Client client = statement.getClient();
         setFinishDataForClient(client, finishRegistrationRequestDto);
-        clientDAO.savaAndFlush(client);
         ScoringDataDto scoringDataDto = ModelFactory.initScoringDataDto(statement);
 
         CreditDto creditDto = null;
         try {
             creditDto = calculatorApiClient.calc(scoringDataDto);
         } catch (ScoringException e) {
+            log.error("data scoring error: {}. The application will be rejected.", e.getMessage());
             deniedStatement(statement);
-            return;
+            statementDAO.savaAndFlush(statement);
+            throw e;
         }
 
         Credit credit = ModelFactory.createCreditByDto(creditDto);
@@ -82,6 +83,8 @@ public class DealServiceImpl implements DealService {
         statementDAO.savaAndFlush(statement);
         log.info("credit processing completed");
     }
+
+
 
     private void setLoanOfferForStatement(Statement statement, LoanOfferDto loanOfferDto) {
         log.debug("adding data about the loan offer {} to the {}", loanOfferDto, statement);

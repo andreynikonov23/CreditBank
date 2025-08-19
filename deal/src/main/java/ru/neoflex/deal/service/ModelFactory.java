@@ -70,7 +70,7 @@ public class ModelFactory {
         scoringDataDto.setPassportIssueDate(client.getPassportDto().getIssueDate());
         scoringDataDto.setPassportIssueBranch(client.getPassportDto().getIssueBranch());
         scoringDataDto.setMaritalStatus(client.getMaritalStatus());
-        scoringDataDto.setEmploymentDto(client.getEmploymentDto());
+        scoringDataDto.setEmployment(client.getEmploymentDto());
         scoringDataDto.setDependentAmount(client.getDependentAmount());
         scoringDataDto.setAccountNumber(client.getAccountNumber());
         scoringDataDto.setInsuranceEnabled(loanOfferDto.isInsuranceEnabled());

@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
+import ru.neoflex.deal.exceptions.ScoringException;
 import ru.neoflex.deal.model.dto.FinishRegistrationRequestDto;
 import ru.neoflex.deal.model.dto.LoanOfferDto;
 import ru.neoflex.deal.model.dto.LoanStatementRequestDto;
@@ -43,17 +44,24 @@ public class DealController {
         dealService.calculate(statementId, finishRegistrationRequestDto);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
         log.debug("valid error: " + errors);
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(HttpClientErrorException.class)
     public ResponseEntity<String> handleHttpClientExceptions(HttpClientErrorException ex) {
         log.debug("MS calculator is not available: " + ex.getMessage());
         return new ResponseEntity<>("Unfortunately, the loan calculation service is currently unavailable",
                 HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    @ExceptionHandler(ScoringException.class)
+    public ResponseEntity<String> handleScoringExceptions(ScoringException ex) {
+        String errorMessage = "the request failed scoring: " + ex.getMessage();
+        log.debug(errorMessage);
+        return new ResponseEntity<>(errorMessage, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }

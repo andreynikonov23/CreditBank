@@ -55,20 +55,16 @@ public class CalculatorApiClientImpl implements CalculatorApiClient{
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(scoringDataDto)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
+                .onStatus(HttpStatusCode::isError,
                         ((request, response) -> {
                             HttpStatusCode status = response.getStatusCode();
                             String statusText = response.getStatusText();
                             log.error("request sending error {}{}: Error {} -> {}", calculatorUri, endpoint, status, statusText);
-                            throw new HttpClientErrorException(status, statusText);
+                            if (status.value() == 422) {
+                                throw new ScoringException(statusText);
+                            } else
+                                throw new HttpClientErrorException(status, statusText);
                         }))
-                .onStatus(HttpStatus.UNPROCESSABLE_ENTITY::equals,
-                        (request, response) -> {
-                            HttpStatusCode status = response.getStatusCode();
-                            String statusText = response.getStatusText();
-                            log.error("request sending error {}{}: Error {} -> {}", calculatorUri, endpoint, status, statusText);
-                            throw new ScoringException(status, statusText);
-                        })
                 .body(CreditDto.class);
 
         log.debug("the request was successfully {}{} offers executed. Result: {}", calculatorUri, endpoint, creditDto);

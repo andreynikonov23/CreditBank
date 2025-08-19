@@ -2,6 +2,7 @@ package ru.neoflex.deal.service;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,6 +12,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 import ru.neoflex.deal.client.CalculatorApiClientImpl;
 import ru.neoflex.deal.dao.DAO;
+import ru.neoflex.deal.exceptions.ScoringException;
 import ru.neoflex.deal.model.Client;
 import ru.neoflex.deal.model.Credit;
 import ru.neoflex.deal.model.Statement;
@@ -75,11 +77,25 @@ public class DealServiceTest {
         Statement statement = statementDAO.findById(UUID.fromString(statementId));
         Credit credit = statement.getCredit();
 
-        System.out.println(credit);
-
         assertEquals(Gender.FEMALE, client.getGender());
         assertNotNull(client.getEmploymentDto());
         assertEquals("2340000.00", credit.getPsk().setScale(2, RoundingMode.HALF_UP).toString());
         assertEquals("48750.00", credit.getMonthlyPayment().setScale(2, RoundingMode.HALF_UP).toString());
+    }
+
+    @Transactional
+    @Test
+    public void calculate_failedScoringTest() {
+        Mockito.when(calculatorApiClientImpl.calc(ArgumentMatchers.any(ScoringDataDto.class))).thenThrow(ScoringException.class);
+
+        String statementId = "d7adafce-04fc-4b12-a18d-db27c86152f8";
+        FinishRegistrationRequestDto finishRegistrationRequestDto = TestData.getFinishRegistrationRequestDto();
+
+        dealService.calculate(statementId, finishRegistrationRequestDto);
+
+        Statement statement = statementDAO.findById(UUID.fromString(statementId));
+        assertEquals(ApplicationStatus.CC_DENIED, statement.getStatus());
+        String statusFromLastEntryInHistory = statement.getStatusHistory().get(statement.getStatusHistory().size()-1).getStatus();
+        assertEquals("statement denied", statusFromLastEntryInHistory);
     }
 }
