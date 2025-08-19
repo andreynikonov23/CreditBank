@@ -6,6 +6,13 @@
                             https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
 
     <changeSet id="001-insert-client-data" author="system">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="3">
+                    SELECT COUNT(*) FROM client WHERE client_id IN ('179b91b6-5eb7-4d7b-a31f-56a98784e199', 'de3d8f07-6240-4c06-acea-5aa536511070', 'ef34947e-6315-4784-a17d-2bdc9d79125c');
+                </sqlCheck>
+            </not>
+        </preConditions>
         <insert tableName="client">
             <column name="client_id" value="ef34947e-6315-4784-a17d-2bdc9d79125c"/>
             <column name="last_name" value="Mudrova"/>
@@ -53,6 +60,13 @@
     </changeSet>
 
     <changeSet id="002-insert-credit-data" author="system">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="2">
+                    SELECT COUNT(*) FROM credit WHERE credit_id IN ('afbe1d38-0dff-426d-bf09-207af63868f2', 'fea823ac-7f0d-4112-a71e-2e3cc48e523f')
+                </sqlCheck>
+            </not>
+        </preConditions>
         <insert tableName="credit">
             <column name="credit_id" value="afbe1d38-0dff-426d-bf09-207af63868f2"/>
             <column name="amount" value="2000000.00"/>
@@ -1955,6 +1969,13 @@
     </changeSet>
 
     <changeSet id="003-insert-statement-data" author="system">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="3">
+                    SELECT COUNT(*) FROM statement WHERE statement_id IN ('0fde9ba9-6735-4029-90d8-39749c676da4', '8666f70c-5969-4b96-817b-d737dc223806', 'ff942ab8-817b-4fb9-98b6-2a10e478dd52')
+                </sqlCheck>
+            </not>
+        </preConditions>
         <insert tableName="statement">
             <column name="statement_id" value="ff942ab8-817b-4fb9-98b6-2a10e478dd52"/>
             <column name="client_id" value="179b91b6-5eb7-4d7b-a31f-56a98784e199"/>
