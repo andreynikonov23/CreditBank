@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="001-create-client-table" author="creditbankapp">
+        <createTable tableName="client">
+            <column name="client_id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="middle_name" type="VARCHAR(255)"/>
+            <column name="birth_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="gender" type="VARCHAR(255)"/>
+            <column name="marital_status" type="VARCHAR(255)"/>
+            <column name="dependent_amount" type="INTEGER"/>
+            <column name="passport_id" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+            <column name="employment_id" type="jsonb"/>
+            <column name="account_number" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="002-create-credit-table" author="creditbankapp">
+        <createTable tableName="credit">
+            <column name="credit_id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="amount" type="NUMERIC(38,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="term" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="monthly_payment" type="NUMERIC(38,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rate" type="NUMERIC(38,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="psk" type="NUMERIC(38,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_schedule" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+            <column name="insurance_enable" type="BOOLEAN"/>
+            <column name="salary_client" type="BOOLEAN"/>
+            <column name="credit_status" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="003-create-statement-table" author="system">
+        <createTable tableName="statement">
+            <column name="statement_id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="client_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="credit_id" type="UUID"/>
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creation_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="applied_offer" type="jsonb"/>
+            <column name="sign_date" type="DATE"/>
+            <column name="ses_code" type="VARCHAR(255)"/>
+            <column name="status_history" type="jsonb"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="004-add-foreign-key-constraints" author="system">
+        <addForeignKeyConstraint
+                baseTableName="statement"
+                baseColumnNames="client_id"
+                referencedTableName="client"
+                referencedColumnNames="client_id"
+                constraintName="statement_client_fk"/>
+
+        <addForeignKeyConstraint
+                baseTableName="statement"
+                baseColumnNames="credit_id"
+                referencedTableName="credit"
+                referencedColumnNames="credit_id"
+                constraintName="statement_credit_fk"/>
+    </changeSet>
+
+</databaseChangeLog>
