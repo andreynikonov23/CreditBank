@@ -2,7 +2,6 @@ package ru.neoflex.calculator.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,12 +9,15 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 public class EmploymentDto {
+    @NotNull(message = "employmentUUID is empty")
+    private UUID employmentUUID;
     @NotNull(message = "employmentStatus is empty")
     private EmploymentStatus employmentStatus;
     @NotNull(message = "employerINN is empty")
@@ -24,7 +26,7 @@ public class EmploymentDto {
     @NotNull(message = "salary is empty")
     private BigDecimal salary;
     @NotNull(message = "position is empty")
-    private Position position;
+    private EmploymentPosition position;
     @NotNull(message = "workExperienceTotal is empty")
     private int workExperienceTotal;
     @NotNull(message = "workExperienceCurrent is empty")
@@ -32,13 +34,13 @@ public class EmploymentDto {
 
     @Override
     public String toString() {
-        return String.format("EmploymentDto{employmentStatus: %s, employerINN: %s, salary: %f, position: %s, workExperienceTotal: %d, workExperienceCurrent: %d}",
-                employmentStatus, employerINN, salary, position, workExperienceTotal, workExperienceCurrent);
+        return String.format("Employment{employmentUUID: %s, employmentStatus: %s, employerINN: %s, salary: %f, position: %s, workExperienceTotal: %d, workExperienceCurrent: %d}",
+                employmentUUID, employmentStatus, employerINN, salary, position, workExperienceTotal, workExperienceCurrent);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(employmentStatus, employerINN, salary, position, workExperienceTotal, workExperienceCurrent);
+        return Objects.hash(employmentUUID, employmentStatus, employerINN, salary, position, workExperienceTotal, workExperienceCurrent);
     }
 
     @Override
@@ -53,7 +55,7 @@ public class EmploymentDto {
             return true;
         }
         EmploymentDto otherED = (EmploymentDto) obj;
-        return employmentStatus.equals(otherED.getEmploymentStatus()) && employerINN.equals(otherED.getEmployerINN())
+        return employmentUUID.equals(otherED.getEmploymentUUID()) && employmentStatus.equals(otherED.getEmploymentStatus()) && employerINN.equals(otherED.getEmployerINN())
                 && salary.equals(otherED.getSalary()) && position.equals(otherED.getPosition())
                 && workExperienceTotal == otherED.getWorkExperienceTotal() && workExperienceCurrent == otherED.getWorkExperienceCurrent();
     }

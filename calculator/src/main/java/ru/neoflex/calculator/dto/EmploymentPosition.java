@@ -1,7 +1,7 @@
 package ru.neoflex.calculator.dto;
 
-public enum Position {
-     WORKER,
+public enum EmploymentPosition {
+    WORKER,
     MID_MANAGER,
     TOP_MANAGER,
     OWNER

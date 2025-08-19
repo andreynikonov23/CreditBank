@@ -14,6 +14,7 @@ import java.time.Period;
 public class ScoringService implements Scoring{
     @Override
     public BigDecimal scoreRate(BigDecimal rate, ScoringDataDto scoringDataDto) throws ScoringException {
+        System.out.println(scoringDataDto);
         log.info("the beginning of data scoring: rate={}; scoringDataDto={}", rate, scoringDataDto);
         rate = calcRateByEmployment(rate, scoringDataDto.getAmount(), scoringDataDto.getEmployment());
         rate = calcRateByMaritalStatus(rate, scoringDataDto.getMaritalStatus());
@@ -84,7 +85,7 @@ public class ScoringService implements Scoring{
         return rate;
     }
 
-    private BigDecimal calcRateByEmploymentPosition(BigDecimal rate, Position position) {
+    private BigDecimal calcRateByEmploymentPosition(BigDecimal rate, EmploymentPosition position) {
         switch (position) {
             case MID_MANAGER -> rate = rate.subtract(BigDecimal.valueOf(2));
             case TOP_MANAGER -> rate = rate.subtract(BigDecimal.valueOf(3));

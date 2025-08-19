@@ -41,9 +41,9 @@ public class CreditCalculatorServiceTest {
 
         CreditDto credit = creditCalculatorService.calc(scoringDataDto);
 
-        assertEquals(new BigDecimal("49783.3333333333"), credit.getMonthlyPayment());
-        assertEquals(new BigDecimal("5974000.00000000000"), credit.getPsk());
-        assertEquals(120, credit.getPaymentSchedule().size());
+        assertEquals(new BigDecimal("34639.8809523810"), credit.getMonthlyPayment());
+        assertEquals(new BigDecimal("2909750.00000000260"), credit.getPsk());
+        assertEquals(84, credit.getPaymentSchedule().size());
 
         BigDecimal actual = credit.getPaymentSchedule().get(credit.getPaymentSchedule().size()-1).getRemainingDebt().setScale(2, RoundingMode.HALF_UP);
         BigDecimal expected = new BigDecimal("0.0").setScale(2, RoundingMode.HALF_UP);

@@ -68,13 +68,13 @@ public class ScoringServiceTest {
 
     @Test
     void calcRateByManagerPosition() throws ScoringException {
-        validScoringDataDto.getEmployment().setPosition(Position.MID_MANAGER);
+        validScoringDataDto.getEmployment().setPosition(EmploymentPosition.MID_MANAGER);
 
         BigDecimal resultMidManager = scoringService.scoreRate(baseRate, validScoringDataDto);
         BigDecimal actualMidManager = resultMidManager.setScale(2, RoundingMode.HALF_UP);
         BigDecimal expectedMidManager = new BigDecimal("13.0").setScale(2, RoundingMode.HALF_UP);
 
-        validScoringDataDto.getEmployment().setPosition(Position.TOP_MANAGER);
+        validScoringDataDto.getEmployment().setPosition(EmploymentPosition.TOP_MANAGER);
 
         BigDecimal resultTopManager = scoringService.scoreRate(baseRate, validScoringDataDto);
         BigDecimal actualTopManager = resultTopManager.setScale(2, RoundingMode.HALF_UP);
