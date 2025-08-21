@@ -1,5 +1,6 @@
 package ru.neoflex.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -37,6 +38,7 @@ public class Credit {
     @NotNull(message = "psk is null")
     @Min(value = 0, message = "psk must not be less than 0")
     private BigDecimal psk;
+    @JsonIgnore
     @NotNull(message = "paymentSchedule is null")
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "payment_schedule")
@@ -49,6 +51,7 @@ public class Credit {
     @Column(name = "credit_status")
     private CreditStatus creditStatus;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "credit", fetch = FetchType.LAZY)
     private Set<Statement> statements;
 

@@ -31,13 +31,6 @@ public class CalculatorApiClientImpl implements CalculatorApiClient{
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(loanStatementRequestDto)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        ((request, response) -> {
-                            HttpStatusCode status = response.getStatusCode();
-                            String statusText = response.getStatusText();
-                            log.error("request sending error {}{}: Error {} -> {}", calculatorUri, endpoint, status, statusText);
-                            throw new HttpClientErrorException(status, statusText);
-                        }))
                 .body(new ParameterizedTypeReference<>() {});
 
         log.debug("the request was successfully {}{} offers executed. Result: {}: {} size", calculatorUri, endpoint, loanOffers.getClass(), loanOffers.size());
@@ -54,16 +47,6 @@ public class CalculatorApiClientImpl implements CalculatorApiClient{
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(scoringDataDto)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError,
-                        ((request, response) -> {
-                            HttpStatusCode status = response.getStatusCode();
-                            String statusText = response.getStatusText();
-                            log.error("request sending error {}{}: Error {} -> {}", calculatorUri, endpoint, status, statusText);
-                            if (status.value() == 422) {
-                                throw new ScoringException(statusText);
-                            } else
-                                throw new HttpClientErrorException(status, statusText);
-                        }))
                 .body(CreditDto.class);
 
         log.debug("the request was successfully {}{} offers executed. Result: {}", calculatorUri, endpoint, creditDto);

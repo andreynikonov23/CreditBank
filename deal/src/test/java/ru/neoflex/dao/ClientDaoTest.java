@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestPropertySource("/application-test.properties")
-@Sql(value = {"/sql/init_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(value = {"/sql/init_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class ClientDaoTest {
     @Autowired
     private DAO<Client, UUID> clientDAO;
@@ -24,7 +24,7 @@ public class ClientDaoTest {
     @Test
     public void getAllTest() {
         List<Client> clients = clientDAO.getAll();
-        assertEquals(1, clients.size());
+        assertEquals(4, clients.size());
     }
 
     @Test

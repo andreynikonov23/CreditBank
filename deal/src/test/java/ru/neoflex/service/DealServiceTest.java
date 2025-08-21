@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestPropertySource("/application-test.properties")
-@Sql(value = {"/sql/init_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(value = {"/sql/init_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class DealServiceTest {
     @Autowired
     private DealService dealService;
@@ -64,7 +64,6 @@ public class DealServiceTest {
         assertEquals(2, modStatement.getStatusHistory().size());
     }
 
-    @Transactional
     @Test
     public void calculateTest() {
         Mockito.when(calculatorApiClientImpl.calc(ArgumentMatchers.any(ScoringDataDto.class))).thenReturn(TestData.getCreditDto());
@@ -74,14 +73,14 @@ public class DealServiceTest {
 
         dealService.calculate(statementId, finishRegistrationRequestDto);
 
-        Client client = clientDAO.findById(UUID.fromString("f025e3b4-dd2f-4b03-83a0-2aa6eba21160"));
+        Client client = clientDAO.findById(UUID.fromString("1b18792f-c656-4f03-8823-4187e47ecc09"));
         Statement statement = statementDAO.findById(UUID.fromString(statementId));
         Credit credit = statement.getCredit();
 
-        assertEquals(ApplicationStatus.APPROVED, statement.getStatus());
-        assertEquals("documents have been created", statement.getStatusHistory().get(statement.getStatusHistory().size()-1).getStatus());
+        assertEquals(ApplicationStatus.CC_APPROVED, statement.getStatus());
+        assertEquals("credit approved", statement.getStatusHistory().get(statement.getStatusHistory().size()-1).getStatus());
 
-        assertEquals(Gender.FEMALE, client.getGender());
+        assertEquals(Gender.MALE, client.getGender());
         assertNotNull(client.getEmploymentDto());
         assertEquals("2340000.00", credit.getPsk().setScale(2, RoundingMode.HALF_UP).toString());
         assertEquals("48750.00", credit.getMonthlyPayment().setScale(2, RoundingMode.HALF_UP).toString());

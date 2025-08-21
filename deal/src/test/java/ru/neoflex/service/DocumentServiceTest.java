@@ -26,14 +26,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestPropertySource("/application-test.properties")
-@Sql(value = {"/sql/init_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(value = {"/sql/init_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class DocumentServiceTest {
     @Autowired
     private DocumentService documentService;
     @Autowired
     private DAO<Statement, UUID> statementDAO;
-    @Autowired
-    private DAO<Client, UUID> clientDAO;
     @MockBean
     private KafkaSender kafkaSender;
 
@@ -54,7 +52,7 @@ public class DocumentServiceTest {
         assertEquals("xxxkeep3rxxx@gmail.com", emailMessage.getAddress());
         assertTrue(html.contains("<p>Я, <span>Nikonov Andrey Sergeevich</span>"));
         assertTrue(html.contains("<div class=\"data-value\">5000000,00 руб.</div>"));
-        assertTrue(html.contains("<form action=\"http://localhost:8082/deal/document/" + statementId + "/sign\" method=\"post\">"));
+        assertTrue(html.contains("<form action=\"http://localhost:8080/api/gateway/deal/document/" + statementId + "/sign\" method=\"post\">"));
 
         assertEquals(ApplicationStatus.DOCUMENT_CREATED, statement.getStatus());
         assertEquals("documents have been created", statement.getStatusHistory().get(statement.getStatusHistory().size()-1).getStatus());
@@ -86,7 +84,7 @@ public class DocumentServiceTest {
         assertTrue(html.contains("<span class=\"document-value\">5000000.00 ₽</span>"));
         assertTrue(html.contains("<span class=\"document-value\">10 лет</span>"));
         assertTrue(html.contains("<span class=\"document-value\">15.00 %</span>"));
-        assertTrue(html.contains("<form action=\"http://localhost:8082/deal/document/" + statementId + "/" + statement.getSesCode() + "\" method=\"post\">"));
+        assertTrue(html.contains("<form action=\"http://localhost:8080/api/gateway/deal/document/" + statementId + "/" + statement.getSesCode() + "\" method=\"post\">"));
     }
 
     @Transactional

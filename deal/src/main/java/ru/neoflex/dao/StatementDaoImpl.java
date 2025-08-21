@@ -32,8 +32,9 @@ public class StatementDaoImpl implements DAO<Statement, UUID> {
     public Statement findById(UUID uuid) {
         log.trace("Starting the select statement by id = {} in the database", uuid);
         Statement statement = statementRepository.findById(uuid).orElseThrow(() -> {
-            log.error("statement data with uuid = {} not found", uuid);
-            return new NoSuchElementException("No value present");
+            String errorMessage = String.format("statement data with uuid = %s not found", uuid);
+            log.error(errorMessage);
+            return new NoSuchElementException(errorMessage);
         });
         log.debug("the statement's data is found. {}", statement);
         return statement;

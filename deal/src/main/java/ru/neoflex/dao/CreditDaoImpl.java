@@ -30,8 +30,9 @@ public class CreditDaoImpl implements DAO<Credit, UUID> {
     public Credit findById(UUID uuid) {
         log.trace("Starting the select client by id = {} in the database", uuid);
         Credit credit = creditRepository.findById(uuid).orElseThrow(() -> {
-            log.error("credit data with uuid = {} not found", uuid);
-            return new NoSuchElementException("No value present");
+            String errorMessage = String.format("credit data with uuid = %s not found", uuid);
+            log.error(errorMessage);
+            return new NoSuchElementException(errorMessage);
         });
         log.debug("the credit's data is found. {}", credit);
         return credit;

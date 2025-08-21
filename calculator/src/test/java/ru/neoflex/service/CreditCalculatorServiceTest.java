@@ -3,7 +3,6 @@ package ru.neoflex.service;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.neoflex.calculator.dto.*;
 import ru.neoflex.dto.CreditDto;
 import ru.neoflex.dto.LoanOfferDto;
 import ru.neoflex.dto.LoanStatementRequestDto;

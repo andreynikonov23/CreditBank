@@ -1,3 +1,7 @@
+DELETE FROM statement;
+DELETE FROM client;
+DELETE FROM credit;
+
 INSERT INTO client (client_id, last_name, first_name, middle_name,
                     birth_date, email, gender, marital_status,
                     dependent_amount, passport_id, employment_id, account_number)
@@ -3303,7 +3307,7 @@ VALUES ('b8768740-1b18-4638-a772-5662031aca5a', '34008277-dac8-43d7-a70d-3ffe602
         ]');
 
 INSERT INTO statement (statement_id, client_id, status, creation_date, applied_offer, status_history)
-VALUES ('d7adafce-04fc-4b12-a18d-db27c86152f8', 'f025e3b4-dd2f-4b03-83a0-2aa6eba21160', 'PREPARE_DOCUMENTS', '2025-08-17',
+VALUES ('d7adafce-04fc-4b12-a18d-db27c86152f8', '1b18792f-c656-4f03-8823-4187e47ecc09', 'PREPARE_DOCUMENTS', '2025-08-17',
         '{
           "rate": 17,
           "term": 4,

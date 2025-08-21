@@ -1,5 +1,6 @@
 package ru.neoflex.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import ru.neoflex.dto.LoanStatementRequestDto;
 import ru.neoflex.service.DealService;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @Slf4j
@@ -63,5 +65,12 @@ public class DealController {
         String errorMessage = "the request failed scoring: " + ex.getMessage();
         log.debug(errorMessage);
         return new ResponseEntity<>(errorMessage, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<String> handleNoSuchElementException(NoSuchElementException ex) {
+        String errorMessage = "no data was found in the database: " + ex.getMessage();
+        log.debug(errorMessage);
+        return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
     }
 }

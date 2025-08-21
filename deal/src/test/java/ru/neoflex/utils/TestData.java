@@ -183,6 +183,7 @@ public class TestData {
 
     public static EmploymentDto getValidEmploymentDto() {
         EmploymentDto employmentDto = new EmploymentDto();
+        employmentDto.setEmploymentUUID(UUID.randomUUID());
         employmentDto.setEmploymentStatus(EmploymentStatus.EMPLOYED);
         employmentDto.setEmployerINN("1234567890");
         employmentDto.setSalary(new BigDecimal("120000.00"));

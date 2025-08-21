@@ -1,5 +1,6 @@
 package ru.neoflex.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
@@ -58,6 +59,7 @@ public class Client {
     @Column(name = "account_number")
     private String accountNumber;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
     private Set<Statement> statements;
 

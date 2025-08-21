@@ -30,13 +30,6 @@ public class DealApiClientImpl implements DealApiClient{
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(loanStatementRequestDto)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError,
-                        ((request, response) -> {
-                            HttpStatusCode status = response.getStatusCode();
-                            String statusText = response.getStatusText();
-                            log.error("request sending error {}{}: Error {} -> {}", dealUri, endpoint, status, statusText);
-                            throw new HttpClientErrorException(status, statusText);
-                        }))
                 .body(new ParameterizedTypeReference<>() {});
 
         log.debug("the request was successfully {}{} offers executed. Result: {}: {} size", dealUri, endpoint, loanOffers.getClass(), loanOffers.size());
@@ -53,13 +46,7 @@ public class DealApiClientImpl implements DealApiClient{
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(loanOfferDto)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError,
-                        ((request, response) -> {
-                            HttpStatusCode status = response.getStatusCode();
-                            String statusText = response.getStatusText();
-                            log.error("request sending error {}{}: Error {} -> {}", dealUri, endpoint, status, statusText);
-                            throw new HttpClientErrorException(status, statusText);
-                        })).toBodilessEntity();
+                .toBodilessEntity();
         log.debug("the request was successfully {}{} offers executed.", dealUri, endpoint);
     }
 
@@ -73,13 +60,7 @@ public class DealApiClientImpl implements DealApiClient{
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(finishRegistrationRequestDto)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError,
-                        ((request, response) -> {
-                            HttpStatusCode status = response.getStatusCode();
-                            String statusText = response.getStatusText();
-                            log.error("request sending error {}{}: Error {} -> {}", dealUri, endpoint, status, statusText);
-                            throw new HttpClientErrorException(status, statusText);
-                        }));
+                .toBodilessEntity();
         log.debug("the request was successfully {}{} offers executed.", dealUri, endpoint);
     }
 }

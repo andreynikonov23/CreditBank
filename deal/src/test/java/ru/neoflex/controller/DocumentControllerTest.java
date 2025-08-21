@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @SpringBootTest
 @TestPropertySource("/application-test.properties")
-@Sql(value = {"/sql/init_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(value = {"/sql/init_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @AutoConfigureMockMvc
 public class DocumentControllerTest {
     @Autowired

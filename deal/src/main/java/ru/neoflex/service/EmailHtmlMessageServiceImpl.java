@@ -22,7 +22,7 @@ public class EmailHtmlMessageServiceImpl implements EmailMessageService{
         log.info("preparing to create a message about the result of calculating the loan for the application {}", statement);
         Context context = new Context();
         context.setVariable("statement", statement);
-        context.setVariable("documentsRequestUrl", "http://localhost:8082/deal/document/" + statement.getId() + "/send");
+        context.setVariable("documentsRequestUrl", "http://localhost:8080/api/gateway/deal/document/" + statement.getId() + "/send");
 
         String body = generateMessageBodyHtml(context, "prepare-docs-message");
         EmailMessage emailMessage = new EmailMessage(
@@ -40,7 +40,7 @@ public class EmailHtmlMessageServiceImpl implements EmailMessageService{
         log.info("preparation for the creation of a credit agreement application {}", statement);
         Context context = new Context();
         context.setVariable("statement", statement);
-        context.setVariable("signingRequestUrl", "http://localhost:8082/deal/document/" + statement.getId() + "/sign");
+        context.setVariable("signingRequestUrl", "http://localhost:8080/api/gateway/deal/document/" + statement.getId() + "/sign");
 
         String body = generateMessageBodyHtml(context, "document-message");
         EmailMessage emailMessage = new EmailMessage(
@@ -58,7 +58,7 @@ public class EmailHtmlMessageServiceImpl implements EmailMessageService{
         log.info("preparing to create an email for signature registration on the application {}", statement);
         Context context = new Context();
         context.setVariable("statement", statement);
-        context.setVariable("signUrl", "http://localhost:8082/deal/document/" + statement.getId() + "/" + statement.getSesCode());
+        context.setVariable("signUrl", "http://localhost:8080/api/gateway/deal/document/" + statement.getId() + "/" + statement.getSesCode());
 
         String body = generateMessageBodyHtml(context, "sign-document-message");
         EmailMessage emailMessage = new EmailMessage(

@@ -32,8 +32,9 @@ public class ClientDaoImpl implements DAO<Client, UUID> {
     public Client findById(UUID uuid) {
         log.trace("Starting the select client by id = {} in the database", uuid);
         Client client = clientRepository.findById(uuid).orElseThrow(() -> {
-            log.error("client data with uuid = {} not found", uuid);
-            return new NoSuchElementException("No value present");
+            String errorMessage = String.format("client data with uuid = %s not found", uuid);
+            log.error(errorMessage);
+            return new NoSuchElementException(errorMessage);
         });
         log.debug("the client's data is found. {}", client);
         return client;
