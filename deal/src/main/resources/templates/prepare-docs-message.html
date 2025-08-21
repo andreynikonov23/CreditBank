@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результаты расчета кредита</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #4a6580);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        .content {
+            padding: 25px;
+        }
+        .calculation-card {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4a6580;
+        }
+        .calculation-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .calculation-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .calculation-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .calculation-value {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .highlight {
+            background-color: #e8f4fc;
+            border-left: 4px solid #2196F3;
+        }
+        .button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+            margin: 25px 0;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button:hover {
+            background: linear-gradient(135deg, #1976D2, #0D47A1);
+        }
+        .note {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .payment-table th {
+            background-color: #f2f2f2;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+        .payment-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .payment-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        .more-payments {
+            text-align: center;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-style: italic;
+        }
+        .button {
+            /* существующие стили */
+            box-sizing: border-box; /* Добавьте это свойство */
+        }
+
+        form {
+            margin: 25px 0; /* Добавьте отступы для формы */
+            display: block; /* Убедитесь, что форма блочная */
+        }
+
+        button.button {
+            /* Сбросим стандартные стили кнопки */
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            border: none;
+            font: inherit;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button.button:hover {
+            background: linear-gradient(135deg, #1976D2, #0D47A1);
+        }
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        h3 {
+            color: #4a6580;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        @media only screen and (max-width: 600px) {
+            .payment-table {
+                font-size: 12px;
+            }
+            .payment-table th,
+            .payment-table td {
+                padding: 6px 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Результаты расчета кредита</h1>
+    </div>
+
+    <div class="content">
+        <p>Уважаемый(ая) <span th:text="${statement.client.firstname} + ' ' + ${statement.client.middleName} + ' ' + ${statement.client.lastname}">Иван Иванов</span>,</p>
+
+        <p>Мы рассчитали для вас персональные условия кредита на основе предоставленных данных.
+            Ниже представлены результаты расчета:</p>
+
+        <div class="calculation-card">
+            <div class="calculation-row">
+                <span class="calculation-label">Запрошенная сумма:</span>
+                <span class="calculation-value" th:text="${#numbers.formatDecimal(statement.credit.amount, 1, 2, 'COMMA') + ' ₽'}">500 000 000 ₽</span>
+            </div>
+            <div class="calculation-row">
+                <span class="calculation-label">Срок кредита:</span>
+                <span class="calculation-value" th:text="${statement.credit.term + ' лет'}">6 лет</span>
+            </div>
+            <div class="calculation-row">
+                <span class="calculation-label">Процентная ставка:</span>
+                <span class="calculation-value" th:text="${#numbers.formatDecimal(statement.credit.rate, 1, 2) + ' %'}">12.5 %</span>
+            </div>
+        </div>
+
+        <div class="calculation-card highlight">
+            <div class="calculation-row">
+                <span class="calculation-label">Ежемесячный платеж:</span>
+                <span class="calculation-value" th:text="${#numbers.formatDecimal(statement.credit.monthlyPayment, 1, 2, 'COMMA') + ' ₽'}">16 666 ₽</span>
+            </div>
+            <div class="calculation-row">
+                <span class="calculation-label">Общая сумма выплат:</span>
+                <span class="calculation-value" th:text="${#numbers.formatDecimal(statement.credit.psk, 1, 2, 'COMMA') + ' ₽'}">600 000 ₽</span>
+            </div>
+        </div>
+
+        <!-- График платежей -->
+        <h3>График платежей</h3>
+
+        <table class="payment-table" th:if="${statement.credit.paymentSchedule != null and !statement.credit.paymentSchedule.isEmpty()}">
+            <thead>
+            <tr>
+                <th>№</th>
+                <th>Дата платежа</th>
+                <th>Общий платеж</th>
+                <th>Месячный платеж</th>
+                <th>Погашение процентов</th>
+                <th>Остаток долга</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Показываем только первые 5 платежей, если их больше 5 -->
+            <tr th:each="payment, iter : ${statement.credit.paymentSchedule}" th:if="${iter.count <= 5}">
+                <td th:text="${payment.number}">1</td>
+                <td th:text="${#temporals.format(payment.date, 'dd.MM.yyyy')}">01.09.2023</td>
+                <td th:text="${#numbers.formatDecimal(payment.totalPayment, 1, 2, 'COMMA') + ' ₽'}">16 666 ₽</td>
+                <td th:text="${#numbers.formatDecimal(payment.debtPayment, 1, 2, 'COMMA') + ' ₽'}">5 208 ₽</td>
+                <td th:text="${#numbers.formatDecimal(payment.interestPayment, 1, 2, 'COMMA') + ' %'}">1 %</td>
+                <td th:text="${#numbers.formatDecimal(payment.remainingDebt, 1, 2, 'COMMA') + ' ₽'}">488 542 ₽</td>
+            </tr>
+
+            <!-- Блок для отображения информации о количестве оставшихся платежей -->
+            <tr th:if="${statement.credit.paymentSchedule.size() > 5}">
+                <td colspan="6" class="more-payments">
+                    ... и ещё <span th:text="${statement.credit.paymentSchedule.size() - 5}">67</span> платежей
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p>Если вас устраивают предложенные условия, вы можете запросить формирование документов для оформления кредита.</p>
+
+        <form th:action="${documentsRequestUrl}" method="post">
+            <button type="submit" class="button">Запросить формирование документов</button>
+        </form>
+
+        <div class="note">
+            <strong>Важно:</strong> После запроса формирование документов займет некоторое время. Вы получите уведомление по электронной почте,
+            когда документы будут готовы к подписанию.
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -13,8 +13,8 @@ import java.util.List;
 public class StatementServiceImpl implements StatementService {
     private final DealApiClient dealApiClient;
 
-    public StatementServiceImpl(DealApiClient dealApiClient) {
-        this.dealApiClient = dealApiClient;
+    public StatementServiceImpl(DealApiClient dealApiClientImpl) {
+        this.dealApiClient = dealApiClientImpl;
     }
     @Override
     public List<LoanOfferDto> calcLoanOffers(LoanStatementRequestDto loanStatementRequestDto) {

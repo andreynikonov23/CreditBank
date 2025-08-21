@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Согласие на условия кредита</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            color: #000;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: #fff;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+        }
+        .document-title {
+            font-size: 22px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .document-content {
+            font-size: 16px;
+            text-align: justify;
+        }
+        .data-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        .data-label {
+            width: 250px;
+            font-weight: bold;
+        }
+        .data-value {
+            flex: 1;
+        }
+        .credit-terms {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background-color: #f0f8ff;
+        }
+        .button {
+            /* существующие стили */
+            box-sizing: border-box; /* Добавьте это свойство */
+        }
+
+        form {
+            margin: 25px 0; /* Добавьте отступы для формы */
+            display: block; /* Убедитесь, что форма блочная */
+        }
+
+        button.button {
+            /* Сбросим стандартные стили кнопки */
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            border: none;
+            font: inherit;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button.button:hover {
+            background: linear-gradient(135deg, #1976D2, #0D47A1);
+        }
+        .footer {
+            margin-top: 50px;
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="document-title">Согласие на условия кредита</div>
+    <div>№ <span th:text="${statement.id}">APP-123456</span></div>
+    <div>Дата: <span th:text="${statement.creationDate}">15.11.2023</span></div>
+</div>
+
+<div class="document-content">
+    <p>Я, <span th:text="${statement.client.lastname + ' ' + statement.client.firstname + ' ' + statement.client.middleName}">Иванов Иван Иванович</span>,
+        паспорт <span th:text="${statement.client.passportDto.series}">1234</span> № <span th:text="${statement.client.passportDto.number}">567890</span>,
+        выдан <span th:text="${statement.client.passportDto.issueBranch}">ОУФМС России по г. Москве</span>
+        <span th:text="${'годен до ' + #temporals.format(statement.client.passportDto.issueDate, 'dd.MM.yyyy')}">15.11.2010</span>
+
+    <p>подтверждаю свое согласие на получение кредита в Банке на следующих условиях:</p>
+
+    <div class="credit-terms">
+        <div class="data-row">
+            <div class="data-label">Сумма кредита:</div>
+            <div class="data-value" th:text="${#numbers.formatDecimal(statement.credit.amount, 1, 2, 'COMMA') + ' руб.'}">500 000 руб.</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Срок кредита:</div>
+            <div class="data-value" th:text="${statement.credit.term + ' месяцев'}">36 месяцев</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Процентная ставка:</div>
+            <div class="data-value" th:text="${#numbers.formatDecimal(statement.credit.rate, 1, 2) + ' % годовых'}">12.5 % годовых</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Ежемесячный платеж:</div>
+            <div class="data-value" th:text="${#numbers.formatDecimal(statement.credit.monthlyPayment, 1, 2, 'COMMA') + ' руб.'}">16 666 руб.</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Общая сумма выплат:</div>
+            <div class="data-value" th:text="${#numbers.formatDecimal(statement.credit.psk, 1, 2, 'COMMA') + ' руб.'}">600 000 руб.</div>
+        </div>
+    </div>
+
+    <p>С условиями кредитного договора и тарифами Банка ознакомлен(а) и согласен(на).</p>
+
+    <p>Подтверждаю достоверность предоставленных мной сведений и осознаю правовые последствия их недостоверности.</p>
+
+</div>
+
+<div class="footer">
+    <p>Дата и время формирования: <span th:text="${statement.creationDate}">15.11.2023 14:30</span></p>
+</div>
+
+<div class="button-container" style="margin-top: 40px; text-align: center;">
+    <form th:action="${signingRequestUrl}" method="post">
+        <button type="submit" class="button">Запросить подписание документов</button>
+    </form>
+    <p style="font-size: 14px; color: #666; margin-top: 10px;">Для завершения оформления кредита необходимо подписать документ, после нажатия на "Перейти подписанию" мы вышлем вам ссылку на подпись</p>
+</div>
+</body>
+</html>

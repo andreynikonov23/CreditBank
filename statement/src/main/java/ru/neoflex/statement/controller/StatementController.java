@@ -20,8 +20,8 @@ import java.util.List;
 public class StatementController {
     private final StatementService statementService;
 
-    public StatementController(StatementService statementService) {
-        this.statementService = statementService;
+    public StatementController(StatementService statementServiceImpl) {
+        this.statementService = statementServiceImpl;
     }
 
     @PostMapping("/")

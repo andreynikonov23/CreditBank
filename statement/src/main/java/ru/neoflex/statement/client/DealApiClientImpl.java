@@ -17,12 +17,12 @@ import java.util.List;
 @Slf4j
 public class DealApiClientImpl implements DealApiClient{
     private final RestClient restClient = RestClient.create();
-    private final String dealUri = "http://localhost:8082:/deal/";
+    private final String dealUri = "http://localhost:8082/deal/";
 
 
     @Override
     public List<LoanOfferDto> statement(LoanStatementRequestDto loanStatementRequestDto) {
-        String endpoint = "offers";
+        String endpoint = "statement";
         log.trace("the beginning of sending a request to {}{} MS deal", dealUri, endpoint);
 
         List<LoanOfferDto> loanOffers = restClient.post()
@@ -48,24 +48,30 @@ public class DealApiClientImpl implements DealApiClient{
         String endpoint = "select";
 
         log.trace("the beginning of sending a request to {}{} MS deal", dealUri, endpoint);
-        sendApiRequest(endpoint, loanOfferDto);
+        restClient.post()
+                .uri(dealUri + endpoint)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(loanOfferDto)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError,
+                        ((request, response) -> {
+                            HttpStatusCode status = response.getStatusCode();
+                            String statusText = response.getStatusText();
+                            log.error("request sending error {}{}: Error {} -> {}", dealUri, endpoint, status, statusText);
+                            throw new HttpClientErrorException(status, statusText);
+                        })).toBodilessEntity();
         log.debug("the request was successfully {}{} offers executed.", dealUri, endpoint);
     }
 
     @Override
     public void calculate(String statementId, FinishRegistrationRequestDto finishRegistrationRequestDto) {
-        String endpoint = "calcuate?statementId=" + statementId;
+        String endpoint = "calculate?statementId=" + statementId;
 
         log.trace("the beginning of sending a request to {}{} MS deal", dealUri, endpoint);
-        sendApiRequest(statementId, finishRegistrationRequestDto);
-        log.debug("the request was successfully {}{} offers executed.", dealUri, endpoint);
-    }
-
-    private void sendApiRequest(String endpoint, Object body) {
         restClient.post()
                 .uri(dealUri + endpoint)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(body)
+                .body(finishRegistrationRequestDto)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError,
                         ((request, response) -> {
@@ -74,5 +80,6 @@ public class DealApiClientImpl implements DealApiClient{
                             log.error("request sending error {}{}: Error {} -> {}", dealUri, endpoint, status, statusText);
                             throw new HttpClientErrorException(status, statusText);
                         }));
+        log.debug("the request was successfully {}{} offers executed.", dealUri, endpoint);
     }
 }

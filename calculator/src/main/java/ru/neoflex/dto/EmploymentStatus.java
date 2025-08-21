@@ -1,0 +1,8 @@
+package ru.neoflex.dto;
+
+public enum EmploymentStatus {
+    UNEMPLOYED,
+    SELF_EMPLOYED,
+    EMPLOYED,
+    BUSINESS_OWNER
+}
