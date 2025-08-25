@@ -1,0 +1,127 @@
+name: credit_bank ci pipeline
+
+on:
+  push:
+    branches: [master, develop, test-ci]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+          image: postgres:13
+          env:
+            POSTGRES_DB: credit_bank_test
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: 1234
+          ports:
+            - 5432:5432
+          options: >-
+            --health-cmd pg_isready
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5       
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+         fetch-depth: 0
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+      
+    - name: Wait until the services are ready
+      run: |
+        until pg_isready -h localhost -p 5432 -U postgres; do
+          sleep 1
+        done
+    - name: Run tests with coverage
+      run: mvn clean test jacoco:report
+
+    - name: Upload coverage to CodeCov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./target/site/jacoco/jacoco.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
+
+    - name: SonarScan
+      run: |
+        mvn sonar:sonar \
+          -Dsonar.projectKey=andreynikonov23_CreditBank \
+          -Dsonar.organization=CreditBank \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+          -Dsonar.java.coveragePlugin=jacoco \
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results
+        path: target/surefire-reports/
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: target/site/jacoco/
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: sonar-report
+        path: target/sonar/
+  
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    if: success()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build project
+        run: mvn package -DskipTests
+
+      - name: Set up Docker Build
+        uses: actions/setup-buildx-action@v2
+
+      - name: Build docker image
+        run: docker compose build
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: creditbank-jar
+          path: target/*.jar
+
+
+      
+
+
+        
+

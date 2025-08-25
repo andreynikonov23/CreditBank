@@ -1,6 +1,7 @@
 package ru.neoflex.statement.client;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -17,12 +18,13 @@ import java.util.List;
 @Slf4j
 public class DealApiClientImpl implements DealApiClient{
     private final RestClient restClient = RestClient.create();
-    private final String dealUri = "http://localhost:8082/deal/";
+    @Value("${creditbank.deal.host}")
+    private String dealUri;
 
 
     @Override
     public List<LoanOfferDto> statement(LoanStatementRequestDto loanStatementRequestDto) {
-        String endpoint = "statement";
+        String endpoint = "/statement";
         log.trace("the beginning of sending a request to {}{} MS deal", dealUri, endpoint);
 
         List<LoanOfferDto> loanOffers = restClient.post()
@@ -38,7 +40,7 @@ public class DealApiClientImpl implements DealApiClient{
 
     @Override
     public void select(LoanOfferDto loanOfferDto) {
-        String endpoint = "select";
+        String endpoint = "/select";
 
         log.trace("the beginning of sending a request to {}{} MS deal", dealUri, endpoint);
         restClient.post()
@@ -52,7 +54,7 @@ public class DealApiClientImpl implements DealApiClient{
 
     @Override
     public void calculate(String statementId, FinishRegistrationRequestDto finishRegistrationRequestDto) {
-        String endpoint = "calculate?statementId=" + statementId;
+        String endpoint = "/calculate?statementId=" + statementId;
 
         log.trace("the beginning of sending a request to {}{} MS deal", dealUri, endpoint);
         restClient.post()

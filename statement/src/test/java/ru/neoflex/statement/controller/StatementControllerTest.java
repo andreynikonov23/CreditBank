@@ -41,7 +41,7 @@ public class StatementControllerTest {
 
         String jsonRequestBody = objectMapper.writeValueAsString(loanStatementRequestDto);
         MvcResult result = mockMvc.perform(
-                        MockMvcRequestBuilders.post("/statement/")
+                        MockMvcRequestBuilders.post("/statement")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonRequestBody)
                 )

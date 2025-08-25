@@ -3,8 +3,11 @@ package ru.neoflex.kafka;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
@@ -15,11 +18,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@ConditionalOnProperty(name = "kafka.enabled", havingValue = "true", matchIfMissing = true)
 public class KafkaProducerConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
     @Bean
+    @ConditionalOnProperty(name = "kafka.enabled", havingValue = "true", matchIfMissing = true)
     public ProducerFactory<String, EmailMessage> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -30,6 +35,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "kafka.enabled", havingValue = "true", matchIfMissing = true)
     public KafkaTemplate<String, EmailMessage> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }

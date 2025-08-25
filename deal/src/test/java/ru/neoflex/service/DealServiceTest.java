@@ -14,6 +14,7 @@ import ru.neoflex.client.CalculatorApiClient;
 import ru.neoflex.dao.DAO;
 import ru.neoflex.dto.*;
 import ru.neoflex.exceptions.ScoringException;
+import ru.neoflex.kafka.KafkaSender;
 import ru.neoflex.model.Client;
 import ru.neoflex.model.Credit;
 import ru.neoflex.model.Statement;
@@ -39,6 +40,8 @@ public class DealServiceTest {
     private DAO<Client, UUID> clientDAO;
     @MockBean
     private CalculatorApiClient calculatorApiClientImpl;
+    @MockBean
+    private KafkaSender kafkaSender;
 
     @Test
     public void calcLoanTermsTest() {

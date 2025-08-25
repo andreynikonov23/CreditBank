@@ -11,7 +11,6 @@ import ru.neoflex.utils.TestData;
 import ru.neoflex.dto.ScoringDataDto;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;

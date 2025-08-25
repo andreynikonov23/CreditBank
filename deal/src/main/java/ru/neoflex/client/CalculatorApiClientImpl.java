@@ -1,6 +1,7 @@
 package ru.neoflex.client;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -19,11 +20,12 @@ import java.util.List;
 @Slf4j
 public class CalculatorApiClientImpl implements CalculatorApiClient{
     private final RestClient restClient = RestClient.create();
-    private final String calculatorUri = "http://localhost:8081/calculator/";
+    @Value("${creditbank.calculator.host}")
+    private String calculatorUri;
 
     @Override
     public List<LoanOfferDto> offers(LoanStatementRequestDto loanStatementRequestDto) {
-        String endpoint = "offers";
+        String endpoint = "/offers";
         log.trace("the beginning of sending a request to {}{} MS calculator", calculatorUri, endpoint);
 
         List<LoanOfferDto> loanOffers = restClient.post()
@@ -39,7 +41,7 @@ public class CalculatorApiClientImpl implements CalculatorApiClient{
 
     @Override
     public CreditDto calc(ScoringDataDto scoringDataDto) {
-        String endpoint = "calc";
+        String endpoint = "/calc";
         log.trace("the beginning of sending a request to {}{} MS calculator", calculatorUri, endpoint);
 
         CreditDto creditDto = restClient.post()

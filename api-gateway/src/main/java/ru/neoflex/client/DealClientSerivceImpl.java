@@ -1,6 +1,7 @@
 package ru.neoflex.client;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -10,7 +11,8 @@ import ru.neoflex.dto.FinishRegistrationRequestDto;
 @Slf4j
 public class DealClientSerivceImpl implements DealClientService{
     private final RestClient restClient;
-    private final String uri = "http://localhost:8082/deal/";
+    @Value("${creditbank.deal.host}")
+    private String uri;
 
     public DealClientSerivceImpl(RestClient restClient) {
         this.restClient = restClient;
@@ -18,7 +20,7 @@ public class DealClientSerivceImpl implements DealClientService{
 
     @Override
     public void calculate(String statementId, FinishRegistrationRequestDto finishRegistrationRequestDto) {
-        String endpoint = "calculate?statementId=" + statementId;
+        String endpoint = "/calculate?statementId=" + statementId;
 
         log.trace("the beginning of sending a request to {}{} MS deal", uri, endpoint);
         restClient.post()
@@ -32,7 +34,7 @@ public class DealClientSerivceImpl implements DealClientService{
 
     @Override
     public void requestSendDocuments(String statementId) {
-        String endpoint = "document/" + statementId + "/send";
+        String endpoint = "/document/" + statementId + "/send";
 
         log.trace("the beginning of sending a request to {}{} MS deal", uri, endpoint);
         restClient.post()
@@ -44,7 +46,7 @@ public class DealClientSerivceImpl implements DealClientService{
 
     @Override
     public void requestSignDocuments(String statementId) {
-        String endpoint = "document/" + statementId + "/sign";
+        String endpoint = "/document/" + statementId + "/sign";
 
         log.trace("the beginning of sending a request to {}{} MS deal", uri, endpoint);
         restClient.post()
@@ -56,7 +58,7 @@ public class DealClientSerivceImpl implements DealClientService{
 
     @Override
     public void signDocument(String statementId, String sesCode) {
-        String endpoint = "document/" + statementId + "/" + sesCode;
+        String endpoint = "/document/" + statementId + "/" + sesCode;
 
         log.trace("the beginning of sending a request to {}{} MS deal", uri, endpoint);
         restClient.post()
@@ -68,7 +70,7 @@ public class DealClientSerivceImpl implements DealClientService{
 
     @Override
     public String findStatementById(String statementId) {
-        String endpoint = "admin/statement/" + statementId;
+        String endpoint = "/admin/statement/" + statementId;
         log.trace("the beginning of sending a request to {}{} MS deal", uri, endpoint);
 
         String statementsJson = restClient.get()
@@ -83,7 +85,7 @@ public class DealClientSerivceImpl implements DealClientService{
 
     @Override
     public String getAllStatements() {
-        String endpoint = "admin/statement";
+        String endpoint = "/admin/statement";
         log.trace("the beginning of sending a request to {}{} MS deal", uri, endpoint);
 
         String statementsJson = restClient.get()
