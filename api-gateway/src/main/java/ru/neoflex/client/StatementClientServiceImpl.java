@@ -1,6 +1,7 @@
 package ru.neoflex.client;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -16,7 +17,8 @@ import java.util.List;
 @Slf4j
 public class StatementClientServiceImpl implements StatementClientService{
     private final RestClient restClient = RestClient.create();
-    private final String uri = "http://localhost:8083/statement/";
+    @Value("${creditbank.statement.host}")
+    private String uri;
 
     @Override
     public List<LoanOfferDto> calcLoanOffers(LoanStatementRequestDto loanStatementRequestDto) {
@@ -35,7 +37,7 @@ public class StatementClientServiceImpl implements StatementClientService{
 
     @Override
     public void offer(LoanOfferDto loanOfferDto) {
-        String endpoint = "offer";
+        String endpoint = "/offer";
 
         log.trace("the beginning of sending a request to {}{} MS deal", uri, endpoint);
         restClient.post()

@@ -1,0 +1,1 @@
+CREATE DATABASE credit_bank_test;

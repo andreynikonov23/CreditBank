@@ -24,7 +24,7 @@ public class StatementController {
         this.statementService = statementServiceImpl;
     }
 
-    @PostMapping("/")
+    @PostMapping
     public List<LoanOfferDto> calcLoanOffers(@Valid @RequestBody LoanStatementRequestDto loanStatementRequestDto) {
         log.info("/statement with body {}", loanStatementRequestDto);
         return statementService.calcLoanOffers(loanStatementRequestDto);
