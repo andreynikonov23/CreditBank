@@ -80,7 +80,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: test-results
+        name: ${{ matrix.service }} test-results
         path: ${{ matrix.service }}/target/surefire-reports/
 
     - name: Upload coverage report for ${{ matrix.service }}
