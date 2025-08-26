@@ -102,7 +102,7 @@ jobs:
     - name: Upload coverage report for ${{ matrix.service }}
       uses: actions/upload-artifact@v4
       with:
-        name: sonar-report
+        name: ${{ matrix.service }}-sonar-report
         path: ${{ matrix.service }}/target/sonar/
   
 
@@ -124,9 +124,7 @@ jobs:
           cache: maven
 
       - name: Build ${{ matrix.service }}
-        run: |
-          cd ${{ matrix.service }}
-          mvn package -DskipTests
+        run: mvn -f ${{ matrix.service }} package -DskipTests
 
       - name: Upload JAR artifact for ${{ matrix.service }}
         uses: actions/upload-artifact@v3
