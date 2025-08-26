@@ -78,7 +78,7 @@ jobs:
 
     - name: Collect test results
       run: |
-        mkdir test-results
+        [ -d "test-results"] && mkdir mkdir test-results
         for service in api-gateway calculator, deal, dossier, statement; do
           cp $service/target/surefire-reports test-results/ 
         done
