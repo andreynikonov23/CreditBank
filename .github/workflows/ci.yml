@@ -79,7 +79,7 @@ jobs:
     - name: Collect test results
       run: |
         mkdir test-results
-        for service in api-gateway, calculator, deal, dossier, statement; do
+        for service in api-gateway calculator, deal, dossier, statement; do
           cp $service/target/surefire-reports test-results/ 
         done
 
@@ -153,7 +153,7 @@ jobs:
       - name: Save images to artifact
         run: |
           mkdir docker-images
-          for service in api-gateway, calculator, deal, dossier, statement; do
+          for service in api-gateway calculator deal dossier statement; do
             docker save docker-$service -o docker-images/$service.tar
           done
 
