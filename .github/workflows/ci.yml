@@ -125,21 +125,11 @@ jobs:
       - name: Build ${{ matrix.service }}
         run: mvn -f ${{ matrix.service }} clean package -DskipTests
 
-      - name: Upload built artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.service }}-maven-jars
-          path: |
-            */target/*.jar
-            */target/classes
-            retention-days: 1
-
-
-      - name: Upload JAR artifact for ${{ matrix.service }}
+      - name: Upload artifact for ${{ matrix.service }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.service }}-jar
-          path: ${{ matrix.service }}/target/*.jar
+          path: ${{ matrix.service }}/target
 
   build-docker-images:
     runs-on: ubuntu-latest
@@ -160,16 +150,6 @@ jobs:
 
       - name: Set up Docker Build
         uses: docker/setup-buildx-action@v2
-
-      - name: Log files
-        run: |
-          ls \
-          ls api-gateway \
-          ls calculator \
-          ls deal \
-          ls dossier \
-          ls statement
-          
 
       - name: Build docker images
         run: docker compose -f docker/docker-compose.yml build --no-cache
