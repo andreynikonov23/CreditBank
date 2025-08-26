@@ -81,7 +81,7 @@ jobs:
         fi
         for service in api-gateway calculator deal dossier statement; do
           if [ -d "$service/target/surefire-reports" ]; then
-            cp $service/target/surefire-reports test-results/$service
+            cp -r $service/target/surefire-reports test-results/$service
           fi
         done
 
