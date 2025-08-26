@@ -5,22 +5,25 @@ on:
     branches: [master, develop, test-ci]
 
 jobs:
-  test:
+  test-microservices:
     runs-on: ubuntu-latest
     services:
       postgres:
-          image: postgres:13
-          env:
-            POSTGRES_DB: credit_bank_test
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: 1234
-          ports:
-            - 5432:5432
-          options: >-
-            --health-cmd pg_isready
-            --health-interval 10s
-            --health-timeout 5s
-            --health-retries 5       
+        image: postgres:13
+        env:
+          POSTGRES_DB: credit_bank_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 1234
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    strategy:
+      matrix:
+        service: [ api-gateway, calculator, deal, dossier, statement ]
 
     steps:
     - uses: actions/checkout@v4
@@ -47,22 +50,23 @@ jobs:
         until pg_isready -h localhost -p 5432 -U postgres; do
           sleep 1
         done
-    - name: Run tests with coverage
-      run: mvn clean test jacoco:report
 
-    - name: Upload coverage to CodeCov
+    - name: Run tests with coverage for ${{ matrix.service }}
+      run: mvn -f ${{matrix.service}} clean test jacoco:report
+
+    - name: Upload coverage to CodeCov for ${{ matrix.service }}
       uses: codecov/codecov-action@v3
       with:
-        file: ./target/site/jacoco/jacoco.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: true
+        file: ./${{ matrix.service }}/target/site/jacoco/jacoco.xml
+        flags: ${{ matrix.service }}
+        name: codecov-${{ matrix.service }}
+        fail_ci_if_error: false
 
-    - name: SonarScan
+    - name: SonarScan for ${{ matrix.service }}
       run: |
-        mvn sonar:sonar \
+        mvn -f ${{ matrix.service }} sonar:sonar \
           -Dsonar.projectKey=andreynikonov23_CreditBank \
-          -Dsonar.organization=CreditBank \
+          -Dsonar.organization=andreynikonov23 \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
           -Dsonar.java.coveragePlugin=jacoco \
@@ -70,29 +74,66 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-    - name: Upload test results
-      uses: actions/upload-artifact@v3
+    - name: Collect test results
+      run: |
+        if ! -d test-results; then
+          mkdir -p "test-results"
+        fi
+        for service in api-gateway calculator deal dossier statement; do
+          if [ -d "$service/target/surefire-reports" ]; then
+            mkdir -p "test-results/$service"
+            cp -r "$service/target/surefire-reports/"* "test-results/$service/"
+          fi
+        done
+
+    - name: Upload test results for ${{ matrix.service }}
+      uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: test-results
-        path: target/surefire-reports/
+        name: ${{ matrix.service }}-test-results-${{ github.run_id }}
+        path: ${{ matrix.service }}/target/surefire-reports/
 
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v3
+    - name: Upload coverage report for ${{ matrix.service }}
+      uses: actions/upload-artifact@v4
       with:
-        name: coverage-report
-        path: target/site/jacoco/
+        name: ${{ matrix.service }}-coverage-report
+        path: ${{ matrix.service }}/target/site/jacoco/
 
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v3
+    - name: Upload coverage report for ${{ matrix.service }}
+      uses: actions/upload-artifact@v4
       with:
-        name: sonar-report
-        path: target/sonar/
-  
+        name: ${{ matrix.service }}-sonar-report
+        path: ${{ matrix.service }}/target/sonar/
 
-  build:
+  build-microservices:
     runs-on: ubuntu-latest
-    needs: test
+    needs: test-microservices
+    if: success()
+    strategy:
+      matrix:
+        service: [ api-gateway, calculator, deal, dossier, statement ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build ${{ matrix.service }}
+        run: mvn -f ${{ matrix.service }} clean package -DskipTests
+
+      - name: Upload artifact for ${{ matrix.service }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.service }}-jar
+          path: ${{ matrix.service }}/target/*.jar
+
+  build-docker-images:
+    runs-on: ubuntu-latest
+    needs: build-microservices
     if: success()
     steps:
       - uses: actions/checkout@v4
@@ -104,24 +145,60 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build project
-        run: mvn package -DskipTests
+      - name: Create target folder
+        run: |
+          for service in api-gateway calculator deal dossier statement; do
+            mkdir -p $service/target
+          done
+
+      - name: Download api-gateway artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: api-gateway-jar
+          path: api-gateway/target/
+
+      - name: Download calculator artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: calculator-jar
+          path: calculator/target/
+
+      - name: Download deal artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: deal-jar
+          path: deal/target/
+
+      - name: Download dossier artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dossier-jar
+          path: dossier/target/
+
+      - name: Download statement artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: statement-jar
+          path: statement/target/
 
       - name: Set up Docker Build
-        uses: actions/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v2
 
-      - name: Build docker image
-        run: docker compose build
+      - name: Build docker images
+        run: docker compose -f docker/docker-compose.yml build --no-cache
 
-      - name: Upload JAR artifact
-        uses: actions/upload-artifact@v3
+      - name: Logs docker images
+        run: docker images
+
+      - name: Save images to artifact
+        run: |
+          mkdir docker-images
+          for service in api-gateway calculator deal dossier statement; do
+            docker save docker-$service -o docker-images/$service.tar
+          done
+
+      - name: Upload Docker images as artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: creditbank-jar
-          path: target/*.jar
-
-
-      
-
-
-        
-
+          name: docker-images
+          path: docker-images/*.tar
