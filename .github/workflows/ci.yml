@@ -76,7 +76,7 @@ jobs:
 
     - name: Collect test results
       run: |
-        [ -d "test-results"] && mkdir mkdir test-results
+        [ -d "test-results"] && mkdir test-results
         for service in api-gateway calculator deal dossier statement; do
           if [ -d "$service/target/surefire-reports" ]; then
             mkdir test-results/$service
