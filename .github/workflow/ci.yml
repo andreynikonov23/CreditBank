@@ -2,7 +2,7 @@ name: credit_bank ci pipeline
 
 on:
   push:
-    branches: [master, develop, test-ci]
+    branches: [master, develop]
 
 jobs:
   test-microservices:
