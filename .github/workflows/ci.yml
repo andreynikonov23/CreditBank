@@ -79,7 +79,8 @@ jobs:
         [ -d "test-results"] && mkdir mkdir test-results
         for service in api-gateway calculator deal dossier statement; do
           if [ -d "$service/target/surefire-reports" ]; then
-            cp -r "$service/target/surefire-reports" test-results/$service
+            mkdir test-results/$service
+            cp $service/target/surefire-reports test-results/$service
           fi
         done
 
