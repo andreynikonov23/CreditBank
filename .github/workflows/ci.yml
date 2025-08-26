@@ -50,10 +50,9 @@ jobs:
         until pg_isready -h localhost -p 5432 -U postgres; do
           sleep 1
         done
+
     - name: Run tests with coverage for ${{ matrix.service }}
-      run: |
-        cd ${{matrix.service}}
-        mvn clean test jacoco:report
+      run: mvn -f ${{matrix.service}} clean test jacoco:report
 
     - name: Upload coverage to CodeCov for ${{ matrix.service }}
       uses: codecov/codecov-action@v3
@@ -65,8 +64,7 @@ jobs:
 
     - name: SonarScan for ${{ matrix.service }}
       run: |
-        cd ${{ matrix.service }}
-        mvn sonar:sonar \
+        mvn -f ${{ matrix.service }} sonar:sonar \
           -Dsonar.projectKey=andreynikonov23_CreditBank \
           -Dsonar.organization=andreynikonov23 \
           -Dsonar.host.url=https://sonarcloud.io \
@@ -80,7 +78,9 @@ jobs:
       run: |
         [ -d "test-results"] && mkdir mkdir test-results
         for service in api-gateway calculator, deal, dossier, statement; do
-          cp $service/target/surefire-reports test-results/ 
+          if [ -d "$service/target/surefire-reports" ]; then
+            cp -r "$service/target/surefire-reports" "all-test-results/$service"
+          fi
         done
 
     - name: Upload test results for ${{ matrix.service }}
