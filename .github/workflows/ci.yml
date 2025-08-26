@@ -128,7 +128,7 @@ jobs:
       - name: Upload built artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: maven-jars
+          name: ${{ matrix.service }}-maven-jars
           path: |
             */target/*.jar
             */target/classes
