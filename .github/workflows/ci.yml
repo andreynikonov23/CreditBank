@@ -68,7 +68,6 @@ jobs:
         cd ${{ matrix.service }}
         mvn sonar:sonar \
           -Dsonar.projectKey=andreynikonov23_CreditBank \
-          -Dsonar.organization=CreditBank \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
           -Dsonar.java.coveragePlugin=jacoco \
