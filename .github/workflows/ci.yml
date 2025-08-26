@@ -80,7 +80,7 @@ jobs:
       run: |
         mkdir test-results
         for service in api-gateway, calculator, deal, dossier, statement; do
-          copy $service/target/surefire-reports test-results/ 
+          cp $service/target/surefire-reports test-results/ 
         done
 
     - name: Upload test results for ${{ matrix.service }}
