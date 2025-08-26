@@ -104,7 +104,6 @@ jobs:
       with:
         name: ${{ matrix.service }}-sonar-report
         path: ${{ matrix.service }}/target/sonar/
-  
 
   build-microservices:
     runs-on: ubuntu-latest
@@ -123,27 +122,11 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build ${{ matrix.service }}
-        run: mvn -f ${{ matrix.service }} package -DskipTests
-
-      - name: Upload JAR artifact for ${{ matrix.service }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.service }}-jar
-          path: ${{ matrix.service }}/target/*.jar
-
-  build-docker-compose:
-    runs-on: ubuntu-latest
-    needs: build-microservices
-    if: success()
-    strategy:
-      matrix:
-        service: [ api-gateway, calculator, deal, dossier, statement ]
-    steps:
-      - uses: actions/checkout@v4
-
       - name: Set up Docker Build
         uses: docker/setup-buildx-action@v2
+
+      - name: Build ${{ matrix.service }}
+        run: mvn -f ${{ matrix.service }} package -DskipTest
 
       - name: Build docker images
         run: docker compose -f docker/docker-compose.yml build --no-cache
@@ -157,6 +140,12 @@ jobs:
           for service in api-gateway calculator deal dossier statement; do
             docker save docker-$service -o docker-images/$service.tar
           done
+
+      - name: Upload JAR artifact for ${{ matrix.service }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.service }}-jar
+          path: ${{ matrix.service }}/target/*.jar
 
       - name: Upload Docker images as artifacts
         uses: actions/upload-artifact@v4
