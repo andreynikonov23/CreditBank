@@ -126,7 +126,7 @@ jobs:
 
   build-docker-compose:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-microservices
     if: success()
     strategy:
       matrix:
