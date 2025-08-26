@@ -80,6 +80,7 @@ jobs:
         for service in api-gateway calculator deal dossier statement; do
           if [ -d "$service/target/surefire-reports" ]; then
             mkdir test-results/$service
+        
             cp $service/target/surefire-reports test-results/$service
           fi
         done
