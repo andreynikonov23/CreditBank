@@ -76,12 +76,11 @@ jobs:
 
     - name: Collect test results
       run: |
-        [ -d "test-results"] && mkdir test-results
+        if test -d test-results; then
+          mkdir test-results
+        fi
         for service in api-gateway calculator deal dossier statement; do
           if [ -d "$service/target/surefire-reports" ]; then
-            ls
-            cd test-results
-            ls
             cp $service/target/surefire-reports test-results/$service
           fi
         done
