@@ -3,6 +3,8 @@ name: credit_bank ci pipeline
 on:
   push:
     branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
 
 jobs:
   test-microservices:
@@ -55,8 +57,9 @@ jobs:
       run: mvn -f ${{matrix.service}} clean test jacoco:report
 
     - name: Upload coverage to CodeCov for ${{ matrix.service }}
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v5
       with:
+        token: ${{ secrets.CODECOV_TOKEN }}
         file: ./${{ matrix.service }}/target/site/jacoco/jacoco.xml
         flags: ${{ matrix.service }}
         name: codecov-${{ matrix.service }}
