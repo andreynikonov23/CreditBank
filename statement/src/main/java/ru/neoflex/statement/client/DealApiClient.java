@@ -9,5 +9,4 @@ import java.util.List;
 public interface DealApiClient {
     List<LoanOfferDto> statement(LoanStatementRequestDto loanStatementRequestDto);
     void select(LoanOfferDto loanOfferDto);
-    void calculate(String statementId, FinishRegistrationRequestDto finishRegistrationRequestDto);
 }

@@ -2,13 +2,13 @@ package ru.neoflex.statement.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -24,6 +24,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
+@TestPropertySource("/application-test.properties")
 @AutoConfigureMockMvc
 public class StatementControllerTest {
     @Autowired
@@ -55,4 +56,21 @@ public class StatementControllerTest {
 
         assertEquals(4, loanOffers.size());
     }
+
+    @Test
+    public void selectLoanOfferTest() throws Exception {
+        LoanOfferDto loanOfferDto = TestData.getTestLoanOffers().get(1);
+        loanOfferDto.setStatementId(UUID.randomUUID());
+
+        String jsonRequestBody = objectMapper.writeValueAsString(loanOfferDto);
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/statement/offer")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequestBody)
+        )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+    }
+
+
 }

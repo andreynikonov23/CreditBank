@@ -1,7 +1,6 @@
 package ru.neoflex.statement.utils;
 
-import ru.neoflex.statement.dto.LoanOfferDto;
-import ru.neoflex.statement.dto.LoanStatementRequestDto;
+import ru.neoflex.statement.dto.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -63,5 +62,30 @@ public class TestData {
         loanStatementRequestDto.setPassportNumber("234455");
 
         return loanStatementRequestDto;
+    }
+
+    public static LoanStatementRequestDto getInvalidLoanStatementRequestDto() {
+        LoanStatementRequestDto loanStatementRequestDto = new LoanStatementRequestDto();
+        loanStatementRequestDto.setAmount(BigDecimal.valueOf(5000000));
+        loanStatementRequestDto.setTerm(10);
+        loanStatementRequestDto.setFirstname("Andrey");
+        loanStatementRequestDto.setEmail("nikonov.as");
+        loanStatementRequestDto.setBirthdate(LocalDate.of(2020, 9, 13));
+        loanStatementRequestDto.setPassportSeries("224435");
+        loanStatementRequestDto.setPassportNumber("23gh55");
+
+        return loanStatementRequestDto;
+    }
+
+    public static EmploymentDto getValidEmploymentDto() {
+        EmploymentDto employmentDto = new EmploymentDto();
+        employmentDto.setEmploymentStatus(EmploymentStatus.EMPLOYED);
+        employmentDto.setEmployerINN("1234567890");
+        employmentDto.setSalary(new BigDecimal("120000.00"));
+        employmentDto.setPosition(EmploymentPosition.WORKER);
+        employmentDto.setWorkExperienceTotal(1825);
+        employmentDto.setWorkExperienceCurrent(1095);
+
+        return employmentDto;
     }
 }

@@ -35,11 +35,4 @@ public class DocumentController {
         log.info("/deal/{}/{}", statementId, sesCode);
         documentService.signDocument(statementId, sesCode);
     }
-
-    @ExceptionHandler
-    public ResponseEntity<String> handleSignDocumentException(SignDocumentException ex) {
-        String errorMessage = "the request sign document failed: " + ex.getMessage();
-        log.error(errorMessage);
-        return new ResponseEntity<>(errorMessage, HttpStatus.UNAUTHORIZED);
-    }
 }

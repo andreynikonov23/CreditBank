@@ -1,4 +1,4 @@
-package ru.neoflex.controller;
+package ru.neoflex.statement.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -7,24 +7,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.client.HttpClientErrorException;
-import ru.neoflex.client.CalculatorApiClient;
-import ru.neoflex.dto.LoanOfferDto;
-import ru.neoflex.dto.LoanStatementRequestDto;
-import ru.neoflex.service.DealService;
-import ru.neoflex.utils.TestData;
+import ru.neoflex.statement.client.DealApiClient;
+import ru.neoflex.statement.dto.LoanOfferDto;
+import ru.neoflex.statement.dto.LoanStatementRequestDto;
+import ru.neoflex.statement.utils.TestData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,17 +30,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @TestPropertySource("/application-test.properties")
-@Sql(value = {"/sql/init_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @AutoConfigureMockMvc
-public class DealControllerExceptionHandlerTest {
+public class GlobalExceptionHandlerTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
-    @SpyBean
-    private DealService dealService;
     @MockBean
-    private CalculatorApiClient calculatorApiClient;
+    private DealApiClient dealApiClient;
+
 
     @Test
     public void handleValidationExceptionsTest() throws Exception {
@@ -51,7 +47,7 @@ public class DealControllerExceptionHandlerTest {
 
         String jsonRequestBody = objectMapper.writeValueAsString(loanStatementRequestDto);
         MvcResult result = mockMvc.perform(
-                        MockMvcRequestBuilders.post("/deal/statement")
+                        MockMvcRequestBuilders.post("/statement")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonRequestBody)
                 )
@@ -72,11 +68,11 @@ public class DealControllerExceptionHandlerTest {
     public void handleHttpClientExceptionsTest() throws Exception {
         LoanStatementRequestDto loanStatementRequestDto = TestData.getValidLoanStatementRequestDto();
 
-        Mockito.when(calculatorApiClient.offers(loanStatementRequestDto)).thenThrow(new HttpClientErrorException(HttpStatus.GATEWAY_TIMEOUT));
+        Mockito.when(dealApiClient.statement(loanStatementRequestDto)).thenThrow(new HttpClientErrorException(HttpStatus.GATEWAY_TIMEOUT));
 
         String jsonRequestBody = objectMapper.writeValueAsString(loanStatementRequestDto);
         MvcResult result = mockMvc.perform(
-                        MockMvcRequestBuilders.post("/deal/statement")
+                        MockMvcRequestBuilders.post("/statement")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonRequestBody)
                 )
@@ -93,15 +89,17 @@ public class DealControllerExceptionHandlerTest {
         LoanOfferDto loanOfferDto = TestData.getTestLoanOffers().get(0);
         loanOfferDto.setStatementId(statementId);
 
+        Mockito.doThrow(new NoSuchElementException("statement data with uuid = " + statementId + " not found")).when(dealApiClient).select(loanOfferDto);
+
         String jsonRequestBody = objectMapper.writeValueAsString(loanOfferDto);
         MvcResult result = mockMvc.perform(
-                        MockMvcRequestBuilders.post("/deal/select")
+                        MockMvcRequestBuilders.post("/statement/offer")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonRequestBody)
                 )
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andReturn();
         String errorMessage = result.getResponse().getContentAsString();
-        assertEquals("no data was found in the database: statement data with uuid = " + statementId.toString() + " not found", errorMessage);
+        assertEquals("no data was found in the database: statement data with uuid = " + statementId + " not found", errorMessage);
     }
 }

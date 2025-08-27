@@ -39,18 +39,4 @@ public class CalculatorController {
         log.info("/calculator/calc with body: " + scoringDataDto);
         return creditCalculator.calc(scoringDataDto);
     }
-
-    @ExceptionHandler
-    public ResponseEntity<List<String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        List<String> errors = ex.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
-        log.debug("valid error: " + errors);
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<String> handleScoringExceptions(ScoringException ex) {
-        String errorMessage = "the request failed scoring: " + ex.getMessage();
-        log.debug(errorMessage);
-        return new ResponseEntity<>(errorMessage, HttpStatus.UNPROCESSABLE_ENTITY);
-    }
 }

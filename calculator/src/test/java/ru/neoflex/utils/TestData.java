@@ -3,7 +3,9 @@ package ru.neoflex.utils;
 import ru.neoflex.dto.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.List;
 
 public class TestData {
     public static ScoringDataDto getValidScoringDataDto() {
@@ -102,5 +104,50 @@ public class TestData {
         employmentDto.setWorkExperienceCurrent(1095);
 
         return employmentDto;
+    }
+
+    public static LoanOfferDto getTestLoanOfferDto() {
+        LoanOfferDto loanOfferDto = new LoanOfferDto();
+
+        loanOfferDto.setRequestedAmount(BigDecimal.valueOf(5000000));
+        loanOfferDto.setTotalAmount(BigDecimal.valueOf(5922500));
+        loanOfferDto.setTerm(10);
+        loanOfferDto.setMonthlyPayment(BigDecimal.valueOf(49354.166));
+        loanOfferDto.setRate(BigDecimal.valueOf(15));
+        loanOfferDto.setInsuranceEnabled(true);
+        loanOfferDto.setInsuranceEnabled(true);
+        return loanOfferDto;
+    }
+
+    public static CreditDto getTestCreditDto() {
+        CreditDto creditDto = new CreditDto();
+        creditDto.setAmount(BigDecimal.valueOf(5000000));
+        creditDto.setTerm(8);
+        creditDto.setRate(BigDecimal.valueOf(18));
+        creditDto.setPsk(BigDecimal.valueOf(5900000));
+        creditDto.setMonthlyPayment(BigDecimal.valueOf(61458.33));
+        creditDto.setInsuranceEnabled(false);
+        creditDto.setSalaryClient(false);
+
+        List<PaymentScheduleElementDto> paymentSchedule = List.of(getTestPaymentScheduleElementDto());
+        creditDto.setPaymentSchedule(paymentSchedule);
+
+        return creditDto;
+    }
+
+    public static PaymentScheduleElementDto getTestPaymentScheduleElementDto() {
+        PaymentScheduleElementDto paymentScheduleElementDto = new PaymentScheduleElementDto();
+        paymentScheduleElementDto.setNumber(1);
+        paymentScheduleElementDto.setDate(LocalDate.now());
+        paymentScheduleElementDto.setTotalPayment(getBigDecimal(5900000.00));
+        paymentScheduleElementDto.setInterestPayment(getBigDecimal(0.09));
+        paymentScheduleElementDto.setDebtPayment(getBigDecimal(61458.33));
+        paymentScheduleElementDto.setRemainingDebt(getBigDecimal(5838541.67));
+
+        return paymentScheduleElementDto;
+    }
+
+    private static BigDecimal getBigDecimal(double value) {
+        return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP);
     }
 }

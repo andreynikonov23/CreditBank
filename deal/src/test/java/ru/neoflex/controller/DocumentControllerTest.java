@@ -54,16 +54,5 @@ public class DocumentControllerTest {
         Mockito.verify(documentService).signDocument(statementId, sesCode);
     }
 
-    @Test
-    public void handleSignDocumentExceptionTest() throws Exception {
-        String statementId = UUID.randomUUID().toString();
-        String sesCode = UUID.randomUUID().toString();
 
-        Mockito.doThrow(SignDocumentException.class).when(documentService).signDocument(statementId, sesCode);
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post("/deal/document/" + statementId + "/" + sesCode)
-                )
-                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                .andReturn();
-    }
 }

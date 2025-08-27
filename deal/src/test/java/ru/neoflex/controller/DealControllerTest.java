@@ -70,8 +70,6 @@ public class DealControllerTest {
         LoanOfferDto loanOfferDto = TestData.getTestLoanOffers().get(0);
         loanOfferDto.setStatementId(UUID.randomUUID());
 
-        //Mockito.doNothing().when(dealService).selectLoanOffer(loanOfferDto);
-
         String jsonRequestBody = objectMapper.writeValueAsString(loanOfferDto);
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/deal/select")

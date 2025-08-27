@@ -13,6 +13,7 @@ import ru.neoflex.model.Credit;
 import ru.neoflex.model.Statement;
 import ru.neoflex.enums.ApplicationStatus;
 import ru.neoflex.enums.ChangeType;
+import ru.neoflex.utils.ClientUpdater;
 import ru.neoflex.utils.ModelFactory;
 import ru.neoflex.utils.StatementUpdater;
 
@@ -71,7 +72,7 @@ public class DealServiceImpl implements DealService {
         UUID statementUUID = UUID.fromString(statementId);
         Statement statement = statementDAO.findById(statementUUID);
         Client client = statement.getClient();
-        setFinishDataForClient(client, finishRegistrationRequestDto);
+        ClientUpdater.setFinishDataForClient(client, finishRegistrationRequestDto);
         ScoringDataDto scoringDataDto = ModelFactory.initScoringDataDto(statement);
 
         CreditDto creditDto = null;
@@ -93,18 +94,4 @@ public class DealServiceImpl implements DealService {
         kafkaSender.sendMessage(message, TopicName.CREATE_DOCUMENTS);
         log.info("credit processing completed");
     }
-
-    private void setFinishDataForClient(Client client, FinishRegistrationRequestDto finishRegistrationRequestDto) {
-        log.debug("completion of client registration {} with final data {}", client, finishRegistrationRequestDto);
-        client.setGender(finishRegistrationRequestDto.getGender());
-        client.setMaritalStatus(finishRegistrationRequestDto.getMaritalStatus());
-        client.setDependentAmount(finishRegistrationRequestDto.getDependentAmount());
-        client.getPassportDto().setIssueDate(finishRegistrationRequestDto.getPassportIssueDate());
-        client.getPassportDto().setIssueBranch(finishRegistrationRequestDto.getPassportIssueBranch());
-        client.setEmploymentDto(finishRegistrationRequestDto.getEmploymentDto());
-        client.setAccountNumber(finishRegistrationRequestDto.getAccountNumber());
-        log.debug("the client's registration data has been entered: {}", client);
-    }
-
-
 }
