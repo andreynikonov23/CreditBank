@@ -5,7 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
+import ru.neoflex.model.Client;
+import ru.neoflex.model.Credit;
 import ru.neoflex.model.Statement;
+import ru.neoflex.utils.TestData;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -20,6 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class StatementDaoImplTest {
     @Autowired
     private DAO<Statement, UUID> statementDAO;
+    @Autowired
+    private DAO<Client, UUID> clientDAO;
+    @Autowired
+    private DAO<Credit, UUID> creditDAO;
 
     @Test
     public void getAllTest() {

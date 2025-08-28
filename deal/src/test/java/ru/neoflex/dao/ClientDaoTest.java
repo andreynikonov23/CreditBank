@@ -46,4 +46,12 @@ public class ClientDaoTest {
         assertNotNull(client.getId());
         assertNotNull(clientDAO.findById(client.getId()));
     }
+
+    @Test
+    public void deleteTest() {
+        Client client = TestData.getValidClient();
+        clientDAO.savaAndFlush(client);
+        clientDAO.delete(client);
+        assertThrows(NoSuchElementException.class, () ->  clientDAO.findById(client.getId()));
+    }
 }

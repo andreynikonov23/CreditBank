@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
+import ru.neoflex.model.Client;
 import ru.neoflex.model.Credit;
 import ru.neoflex.utils.TestData;
 
@@ -46,5 +47,13 @@ public class CreditDaoImplTest {
         creditDAO.savaAndFlush(credit);
         assertNotNull(credit.getId());
         assertNotNull(creditDAO.findById(credit.getId()));
+    }
+
+    @Test
+    public void deleteTest() {
+        Credit credit = TestData.getCredit();
+        creditDAO.savaAndFlush(credit);
+        creditDAO.delete(credit);
+        assertThrows(NoSuchElementException.class, () ->  creditDAO.findById(credit.getId()));
     }
 }

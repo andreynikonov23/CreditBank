@@ -6,10 +6,10 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -17,8 +17,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.client.HttpClientErrorException;
 import ru.neoflex.client.CalculatorApiClient;
+import ru.neoflex.dto.FinishRegistrationRequestDto;
 import ru.neoflex.dto.LoanOfferDto;
 import ru.neoflex.dto.LoanStatementRequestDto;
+import ru.neoflex.dto.ScoringDataDto;
+import ru.neoflex.enums.EmploymentStatus;
+import ru.neoflex.exceptions.ScoringException;
 import ru.neoflex.exceptions.SignDocumentException;
 import ru.neoflex.service.DocumentService;
 import ru.neoflex.utils.TestData;
@@ -29,6 +33,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.*;
 
 @SpringBootTest
 @TestPropertySource("/application-test.properties")
@@ -39,9 +44,9 @@ public class GlobalExceptionHandlerTest {
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
-    @MockBean
+    @MockitoBean
     private CalculatorApiClient calculatorApiClient;
-    @MockBean
+    @MockitoBean
     private DocumentService documentService;
 
     @Test
@@ -116,5 +121,27 @@ public class GlobalExceptionHandlerTest {
                 )
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                 .andReturn();
+    }
+
+    @Test
+    public void handleScoringExceptionTest() throws Exception {
+        FinishRegistrationRequestDto finishRegistrationRequestDto = TestData.getFinishRegistrationRequestDto();
+        finishRegistrationRequestDto.getEmploymentDto().setEmploymentStatus(EmploymentStatus.UNEMPLOYED);
+
+        Mockito.doThrow(new ScoringException("the client is unemployed")).when(calculatorApiClient).calc(any(ScoringDataDto.class));
+
+        String requestJsonBody = objectMapper.writeValueAsString(finishRegistrationRequestDto);
+        MvcResult mvcResult = mockMvc.perform(
+                        MockMvcRequestBuilders.post("/deal/calculate")
+                                .param("statementId", "d7adafce-04fc-4b12-a18d-db27c86152f8")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestJsonBody)
+                )
+                .andExpect(MockMvcResultMatchers.status().isUnprocessableEntity())
+                .andReturn();
+
+        String body = mvcResult.getResponse().getContentAsString();
+
+        assertEquals("the request failed scoring: the client is unemployed", body);
     }
 }
