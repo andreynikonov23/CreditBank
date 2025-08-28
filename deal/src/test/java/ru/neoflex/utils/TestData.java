@@ -1,9 +1,11 @@
 package ru.neoflex.utils;
 
+import org.springframework.cglib.core.Local;
 import ru.neoflex.dto.*;
 import ru.neoflex.enums.*;
 import ru.neoflex.model.Client;
 import ru.neoflex.model.Credit;
+import ru.neoflex.model.Statement;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -55,6 +57,21 @@ public class TestData {
         credit.setCreditStatus(CreditStatus.CALCULATED);
 
         return credit;
+    }
+
+    public static Statement getStatement() {
+        Statement statement = new Statement();
+
+        statement.setStatus(ApplicationStatus.CREDIT_ISSUES);
+        statement.setCreationDate(LocalDate.now().minusDays(2));
+        statement.setAppliedOffer(getTestLoanOffers().get(1));
+        statement.setSignDate(LocalDate.now());
+        statement.setSesCode(UUID.randomUUID().toString());
+        statement.setClient(getValidClient());
+        statement.setCredit(getCredit());
+        statement.setStatusHistory(new ArrayList<>());
+
+        return statement;
     }
 
     public static LoanStatementRequestDto getValidLoanStatementRequestDto() {

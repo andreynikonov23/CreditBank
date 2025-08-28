@@ -1,7 +1,6 @@
 package ru.neoflex.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import ru.neoflex.dto.LoanOfferDto;
 import ru.neoflex.dto.StatementStatusHistoryDto;
 import ru.neoflex.enums.ApplicationStatus;

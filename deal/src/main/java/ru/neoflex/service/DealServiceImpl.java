@@ -11,8 +11,6 @@ import ru.neoflex.kafka.TopicName;
 import ru.neoflex.model.Client;
 import ru.neoflex.model.Credit;
 import ru.neoflex.model.Statement;
-import ru.neoflex.enums.ApplicationStatus;
-import ru.neoflex.enums.ChangeType;
 import ru.neoflex.utils.ClientUpdater;
 import ru.neoflex.utils.ModelFactory;
 import ru.neoflex.utils.StatementUpdater;
