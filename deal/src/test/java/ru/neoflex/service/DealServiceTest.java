@@ -14,7 +14,9 @@ import ru.neoflex.client.CalculatorApiClient;
 import ru.neoflex.dao.DAO;
 import ru.neoflex.dto.*;
 import ru.neoflex.exceptions.ScoringException;
+import ru.neoflex.exceptions.StatementStatusException;
 import ru.neoflex.kafka.KafkaSender;
+import ru.neoflex.kafka.TopicName;
 import ru.neoflex.model.Client;
 import ru.neoflex.model.Credit;
 import ru.neoflex.model.Statement;
@@ -65,6 +67,20 @@ public class DealServiceTest {
         assertEquals(ApplicationStatus.APPROVED, modStatement.getStatus());
         assertEquals(loanOfferDto, modStatement.getAppliedOffer());
         assertEquals(2, modStatement.getStatusHistory().size());
+        Mockito.verify(kafkaSender).sendMessage(ArgumentMatchers.any(EmailMessage.class), ArgumentMatchers.eq(TopicName.FINISH_REGISTRATION));
+    }
+
+    @Transactional
+    @Test
+    public void selectLoanOfferForDeniedStatementTest() {
+        UUID statementId = UUID.fromString("0fde9ba9-6735-4029-90d8-39749c676da4");
+        LoanOfferDto loanOfferDto = TestData.getTestLoanOffers().get(0);
+        loanOfferDto.setStatementId(statementId);
+
+        assertThrows(StatementStatusException.class, () -> {
+            dealService.selectLoanOffer(loanOfferDto);
+        });
+
     }
 
     @Test
@@ -96,14 +112,63 @@ public class DealServiceTest {
 
         String statementId = "d7adafce-04fc-4b12-a18d-db27c86152f8";
         FinishRegistrationRequestDto finishRegistrationRequestDto = TestData.getFinishRegistrationRequestDto();
+        ArgumentCaptor<EmailMessage> captor = ArgumentCaptor.forClass(EmailMessage.class);
 
         assertThrows(ScoringException.class, () -> {
             dealService.calculate(statementId, finishRegistrationRequestDto);
         });
 
+        Mockito.verify(kafkaSender).sendMessage(captor.capture(), Mockito.eq(TopicName.STATEMENT_DENIED));
+        EmailMessage emailMessage = captor.getValue();
+
+        String html = emailMessage.getText();
+        System.out.println(html);
+        assertEquals("maximov.mv@gmail.com", emailMessage.getAddress());
+        assertTrue(html.contains("<div class=\"status-text\">Ваша заявка на кредит отклонена</div>"));
+        assertTrue(html.contains("<div class=\"data-value\">d7adafce-04fc-4b12-a18d-db27c86152f8</div>"));
+
         Statement statement = statementDAO.findById(UUID.fromString(statementId));
         assertEquals(ApplicationStatus.CC_DENIED, statement.getStatus());
         String statusFromLastEntryInHistory = statement.getStatusHistory().get(statement.getStatusHistory().size()-1).getStatus();
         assertEquals("statement denied", statusFromLastEntryInHistory);
+        Mockito.verify(kafkaSender).sendMessage(ArgumentMatchers.any(EmailMessage.class), ArgumentMatchers.eq(TopicName.STATEMENT_DENIED));
+    }
+
+    @Test
+    public void calculateForDeniedStatementTest() {
+        String statementId = "0fde9ba9-6735-4029-90d8-39749c676da4";
+        FinishRegistrationRequestDto finishRegistrationRequestDto = TestData.getFinishRegistrationRequestDto();
+
+        assertThrows(StatementStatusException.class, () -> {
+            dealService.calculate(statementId, finishRegistrationRequestDto);
+        });
+    }
+
+    @Test
+    public void clientDeniedTest() {
+        String statementId = "d7adafce-04fc-4b12-a18d-db27c86152f8";
+        ArgumentCaptor<EmailMessage> captor = ArgumentCaptor.forClass(EmailMessage.class);
+
+        dealService.clientDenied(statementId);
+
+        Mockito.verify(kafkaSender).sendMessage(captor.capture(), Mockito.eq(TopicName.STATEMENT_DENIED));
+        EmailMessage emailMessage = captor.getValue();
+
+        String html = emailMessage.getText();
+        assertEquals("maximov.mv@gmail.com", emailMessage.getAddress());
+        assertTrue(html.contains("<div class=\"status-text\">Ваша заявка на кредит отклонена</div>"));
+        assertTrue(html.contains("<div class=\"data-value\">d7adafce-04fc-4b12-a18d-db27c86152f8</div>"));
+
+        Statement statement = statementDAO.findById(UUID.fromString(statementId));
+        assertEquals(ApplicationStatus.CLIENT_DENIED, statement.getStatus());
+        assertEquals("client denied statement", statement.getStatusHistory().get(statement.getStatusHistory().size()-1).getStatus());
+    }
+
+    @Test
+    public void clientDeniedIssuesCreditTest() {
+        String statementId = "51277a41-1a5d-4795-a8da-b6a1efd7e6d6";
+        assertThrows(StatementStatusException.class, () -> {
+            dealService.clientDenied(statementId);
+        });
     }
 }

@@ -5,6 +5,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
+import ru.neoflex.statement.exceptions.MicroserviceException;
+import ru.neoflex.statement.exceptions.MicroserviceName;
+import ru.neoflex.statement.exceptions.StatementStatusException;
 
 import java.util.NoSuchElementException;
 
@@ -17,10 +20,11 @@ public class RestClientConfig {
                     HttpStatusCode statusCode = response.getStatusCode();
                     String statusText = response.getStatusText();
 
-                    if (statusCode.value() == 404) {
-                        throw new NoSuchElementException(statusText);
+                    switch (statusCode.value()) {
+                        case 404 -> throw new NoSuchElementException(statusText);
+                        case 409 -> throw new StatementStatusException(statusText);
+                        default -> throw new MicroserviceException(MicroserviceName.DEAL, statusCode, statusText);
                     }
-                    throw new HttpClientErrorException(statusCode, statusText);
                 }).build();
     }
 }

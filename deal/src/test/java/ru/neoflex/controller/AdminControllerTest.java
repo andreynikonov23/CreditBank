@@ -39,7 +39,7 @@ public class AdminControllerTest {
         List<Statement> statements = objectMapper.readValue(responseBody, objectMapper
                 .getTypeFactory()
                 .constructCollectionType(List.class, Statement.class));
-        assertEquals(4, statements.size());
+        assertEquals(6, statements.size());
     }
 
     @Test

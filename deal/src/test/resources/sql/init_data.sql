@@ -3250,7 +3250,7 @@ VALUES ('277f0cd9-1f2a-47b6-997f-6e6e2bb19f07', 3000000.00, 12, 24891.67, 16.00,
 
 INSERT INTO statement (statement_id, client_id, credit_id, status, creation_date, applied_offer, sign_date, ses_code, status_history)
 VALUES
-('47936ce8-e8c6-496e-a33a-f8f1d4c26c74', 'e3d917fb-f851-4cad-ba07-6562c65a59cb', 'd917bf37-8786-4e14-9eac-0ef216425f2d', 'APPROVED', '2025-08-15',
+('47936ce8-e8c6-496e-a33a-f8f1d4c26c74', 'e3d917fb-f851-4cad-ba07-6562c65a59cb', 'd917bf37-8786-4e14-9eac-0ef216425f2d', 'CREDIT_ISSUES', '2025-08-15',
  '{
    "rate": 15,
    "term": 10,
@@ -3341,7 +3341,7 @@ VALUES ('d7adafce-04fc-4b12-a18d-db27c86152f8', '1b18792f-c656-4f03-8823-4187e47
 
 INSERT INTO statement (statement_id, client_id, credit_id, status, creation_date, applied_offer, sign_date, ses_code, status_history)
 VALUES
-  ('b084413b-9cbc-4791-9732-f827be4a827a', '1b18792f-c656-4f03-8823-4187e47ecc09', '277f0cd9-1f2a-47b6-997f-6e6e2bb19f07', 'DOCUMENT_CREATED', '2025-08-21',
+  ('b084413b-9cbc-4791-9732-f827be4a827a', '1b18792f-c656-4f03-8823-4187e47ecc09', '277f0cd9-1f2a-47b6-997f-6e6e2bb19f07', 'CREDIT_ISSUES', '2025-08-21',
    '{
      "rate": 16,
      "term": 12,
@@ -3400,3 +3400,80 @@ VALUES
        "changeType": "AUTOMATIC"
      }
    ]');
+
+
+INSERT INTO statement (statement_id, client_id, credit_id, status, creation_date, applied_offer, sign_date, ses_code, status_history)
+VALUES
+  ('51277a41-1a5d-4795-a8da-b6a1efd7e6d6', '1b18792f-c656-4f03-8823-4187e47ecc09', '277f0cd9-1f2a-47b6-997f-6e6e2bb19f07', 'CREDIT_ISSUES', '2025-08-21',
+   '{
+     "rate": 16,
+     "term": 12,
+     "statementId": "51277a41-1a5d-4795-a8da-b6a1efd7e6d6",
+     "totalAmount": 3584400,
+     "salaryClient": false,
+     "monthlyPayment": 24891.6666666667,
+     "requestedAmount": 3000000,
+     "insuranceEnabled": true
+   }',
+   null, '4ee3caf9-b1bb-4e4b-aed0-b0c2bc49151a',
+   '[
+     {
+       "time": [
+         2025,
+         8,
+         21
+       ],
+       "status": "create statement",
+       "changeType": "AUTOMATIC"
+     },
+     {
+       "time": [
+         2025,
+         8,
+         21
+       ],
+       "status": "a loan offer has been selected",
+       "changeType": "AUTOMATIC"
+     },
+     {
+       "time": [
+         2025,
+         8,
+         21
+       ],
+       "status": "credit approved",
+       "changeType": "AUTOMATIC"
+     },
+     {
+       "time": [
+         2025,
+         8,
+         21
+       ],
+       "status": "documents have been created",
+       "changeType": "AUTOMATIC"
+     },
+     {
+       "time": [
+         2025,
+         8,
+         21
+       ],
+       "status": "ses_code is generated",
+       "changeType": "AUTOMATIC"
+     }
+   ]');
+
+INSERT INTO statement (statement_id, client_id, status, creation_date, status_history)
+VALUES ('0fde9ba9-6735-4029-90d8-39749c676da4', '34008277-dac8-43d7-a70d-3ffe60288b72', 'CLIENT_DENIED', '2025-08-17',
+        '[
+          {
+            "time": [
+              2025,
+              8,
+              17
+            ],
+            "status": "create statement",
+            "changeType": "AUTOMATIC"
+          }
+        ]');

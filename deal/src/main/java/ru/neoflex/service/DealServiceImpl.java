@@ -5,14 +5,15 @@ import org.springframework.stereotype.Service;
 import ru.neoflex.client.CalculatorApiClient;
 import ru.neoflex.dao.DAO;
 import ru.neoflex.dto.*;
+import ru.neoflex.enums.ApplicationStatus;
 import ru.neoflex.exceptions.ScoringException;
+import ru.neoflex.exceptions.SignDocumentException;
+import ru.neoflex.exceptions.StatementStatusException;
 import ru.neoflex.kafka.KafkaSender;
 import ru.neoflex.kafka.TopicName;
 import ru.neoflex.model.Client;
 import ru.neoflex.model.Credit;
 import ru.neoflex.model.Statement;
-import ru.neoflex.enums.ApplicationStatus;
-import ru.neoflex.enums.ChangeType;
 import ru.neoflex.utils.ClientUpdater;
 import ru.neoflex.utils.ModelFactory;
 import ru.neoflex.utils.StatementUpdater;
@@ -61,8 +62,18 @@ public class DealServiceImpl implements DealService {
         log.info("the beginning of adding data about the loan offer {}", loanOfferDto);
         UUID statementId = loanOfferDto.getStatementId();
         Statement statement = statementDAO.findById(statementId);
+
+        if (statement.getStatus().equals(ApplicationStatus.CLIENT_DENIED) || statement.getStatus().equals(ApplicationStatus.CC_DENIED)) {
+            String errorMessage = "statement has denied";
+            log.error(errorMessage);
+            throw new StatementStatusException(errorMessage);
+        }
+
         StatementUpdater.setLoanOfferForStatement(statement, loanOfferDto);
         statementDAO.savaAndFlush(statement);
+
+        EmailMessage message = emailMessageService.collectFinishRegistrationMessage(statement);
+        kafkaSender.sendMessage(message, TopicName.FINISH_REGISTRATION);
         log.info("The addition of the loan offer to the application has been completed.");
     }
 
@@ -71,6 +82,13 @@ public class DealServiceImpl implements DealService {
         log.info("the beginning of the loan processing according to the statement {}", statementId);
         UUID statementUUID = UUID.fromString(statementId);
         Statement statement = statementDAO.findById(statementUUID);
+
+        if (statement.getStatus().equals(ApplicationStatus.CLIENT_DENIED) || statement.getStatus().equals(ApplicationStatus.CC_DENIED)) {
+            String errorMessage = "statement has denied";
+            log.error(errorMessage);
+            throw new StatementStatusException(errorMessage);
+        }
+
         Client client = statement.getClient();
         ClientUpdater.setFinishDataForClient(client, finishRegistrationRequestDto);
         ScoringDataDto scoringDataDto = ModelFactory.initScoringDataDto(statement);
@@ -82,6 +100,8 @@ public class DealServiceImpl implements DealService {
             log.error("data scoring error: {}. The application will be rejected.", e.getMessage());
             StatementUpdater.deniedStatement(statement);
             statementDAO.savaAndFlush(statement);
+
+            sendStatementDeniedMessage(statement);
             throw e;
         }
 
@@ -93,5 +113,29 @@ public class DealServiceImpl implements DealService {
         EmailMessage message = emailMessageService.collectResultCreditCalcMessage(statement);
         kafkaSender.sendMessage(message, TopicName.CREATE_DOCUMENTS);
         log.info("credit processing completed");
+    }
+
+    @Override
+    public void clientDenied(String statementId) {
+        log.info("registration of the client's refusal of offers for statement {}", statementId);
+        Statement statement = statementDAO.findById(UUID.fromString(statementId));
+
+        if(statement.getStatus().equals(ApplicationStatus.CREDIT_ISSUES)) {
+            String errorMessage = String.format("the credit has already been issued for the statement {%s}", statementId);
+            log.error(errorMessage);
+            throw new StatementStatusException(errorMessage);
+        }
+
+        StatementUpdater.clientDeniedStatement(statement);
+        statementDAO.savaAndFlush(statement);
+
+        sendStatementDeniedMessage(statement);
+
+        log.info("the cancellation changes are saved");
+    }
+
+    private void sendStatementDeniedMessage(Statement statement) {
+        EmailMessage emailMessage = emailMessageService.collectStatementDeniedMessage(statement);
+        kafkaSender.sendMessage(emailMessage, TopicName.STATEMENT_DENIED);
     }
 }

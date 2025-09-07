@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Уведомление об отклонении заявки на кредит</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            color: #000;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: #fff;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+        }
+        .document-title {
+            font-size: 22px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            color: #666;
+        }
+        .document-content {
+            font-size: 16px;
+            text-align: justify;
+        }
+        .data-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        .data-label {
+            width: 250px;
+            font-weight: bold;
+        }
+        .data-value {
+            flex: 1;
+        }
+        .status-box {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+        .status-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="document-title">Уведомление об отклонении заявки на кредит</div>
+    <div>№ <span th:text="${statement.id}">APP-123456</span></div>
+    <div>Дата: <span th:text="${statement.creationDate}">15.11.2023</span></div>
+</div>
+
+<div class="document-content">
+    <p>Уважаемый(ая) <span th:text="${statement.client.lastname + ' ' + statement.client.firstname + ' ' + statement.client.middleName}">Иванов Иван Иванович</span>,</p>
+
+    <div class="status-box">
+        <div class="status-text">Ваша заявка на кредит отклонена</div>
+    </div>
+
+    <div class="credit-terms">
+        <p>Детали Вашей заявки:</p>
+        <div class="data-row">
+            <div class="data-label">Номер заявки:</div>
+            <div class="data-value" th:text="${statement.id}">APP-123456</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Дата подачи заявки:</div>
+            <div class="data-value" th:text="${statement.creationDate}">15.11.2023</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -2,7 +2,10 @@ package ru.neoflex.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.server.ResponseStatusException;
 import ru.neoflex.client.DealClientService;
 import ru.neoflex.client.StatementClientService;
 import ru.neoflex.dto.FinishRegistrationRequestDto;
@@ -30,9 +33,16 @@ public class ApiController {
     }
 
     @PostMapping("/statement/offer")
-    public void selectLoanOffer(@RequestBody LoanOfferDto loanOfferDto) {
-        log.info("/api/gateway/statement/offer with body {}", loanOfferDto);
-        statementClientService.offer(loanOfferDto);
+    public void selectLoanOffer(@RequestParam(value = "denied-statement", required = false)String statementId, @Valid @RequestBody(required = false) LoanOfferDto loanOfferDto) {
+        log.info("/api/gateway/statement/offer with param {} and body {}", statementId, loanOfferDto);
+        if (statementId != null) {
+            statementClientService.clientDenied(statementId);
+        } else if (loanOfferDto == null) {
+            String errorMessage = "loan offer is null";
+            log.error("/api/gateway/statement/offer error: {}", errorMessage);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
+        } else
+            statementClientService.offer(loanOfferDto);
     }
 
     @PostMapping("/deal/calculate")
@@ -57,5 +67,11 @@ public class ApiController {
     public void signDocument(@PathVariable("statementId") String statementId, @PathVariable("code") String sesCode) {
         log.info("/api/gateway/deal/document/{}/{}", statementId, sesCode);
         dealClientService.signDocument(statementId, sesCode);
+    }
+
+    @PostMapping("/deal/document/{statementId}/denied")
+    public void clientDenied(@PathVariable("statementId") String statementId) {
+        log.info("/api/gateway/deal/document/{}/denied", statementId);
+        dealClientService.clientDenied(statementId);
     }
 }

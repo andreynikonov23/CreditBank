@@ -18,6 +18,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import ru.neoflex.statement.client.DealApiClient;
 import ru.neoflex.statement.dto.LoanOfferDto;
 import ru.neoflex.statement.dto.LoanStatementRequestDto;
+import ru.neoflex.statement.exceptions.MicroserviceException;
+import ru.neoflex.statement.exceptions.MicroserviceName;
+import ru.neoflex.statement.exceptions.StatementStatusException;
 import ru.neoflex.statement.utils.TestData;
 
 import java.util.ArrayList;
@@ -65,10 +68,10 @@ public class GlobalExceptionHandlerTest {
     }
 
     @Test
-    public void handleHttpClientExceptionsTest() throws Exception {
+    public void handleMicroserviceExceptionsTest() throws Exception {
         LoanStatementRequestDto loanStatementRequestDto = TestData.getValidLoanStatementRequestDto();
 
-        Mockito.when(dealApiClient.statement(loanStatementRequestDto)).thenThrow(new HttpClientErrorException(HttpStatus.GATEWAY_TIMEOUT));
+        Mockito.when(dealApiClient.statement(loanStatementRequestDto)).thenThrow(new MicroserviceException(MicroserviceName.DEAL, HttpStatus.GATEWAY_TIMEOUT));
 
         String jsonRequestBody = objectMapper.writeValueAsString(loanStatementRequestDto);
         MvcResult result = mockMvc.perform(
@@ -80,7 +83,7 @@ public class GlobalExceptionHandlerTest {
                 .andReturn();
 
         String errorMessage = result.getResponse().getContentAsString();
-        assertEquals("Unfortunately, the loan calculation service is currently unavailable", errorMessage);
+        assertEquals("Unfortunately, this feature is currently unavailable.", errorMessage);
     }
 
     @Test
@@ -101,5 +104,22 @@ public class GlobalExceptionHandlerTest {
                 .andReturn();
         String errorMessage = result.getResponse().getContentAsString();
         assertEquals("no data was found in the database: statement data with uuid = " + statementId + " not found", errorMessage);
+    }
+
+    @Test
+    public void handleStatementStatusExceptionTest() throws Exception {
+        String statementId = UUID.randomUUID().toString();
+        Mockito.doThrow(new StatementStatusException(String.format("the credit has already been issued for the statement {%s}", statementId))).when(dealApiClient).clientDenied(statementId);
+
+        MvcResult mvcResult = mockMvc.perform(
+                        MockMvcRequestBuilders.post("/statement/offer")
+                                .param("denied-statement", statementId)
+                )
+                .andExpect(MockMvcResultMatchers.status().isConflict())
+                .andReturn();
+
+        String body = mvcResult.getResponse().getContentAsString();
+
+        assertEquals("the statement status exception: the credit has already been issued for the statement {" + statementId + "}", body);
     }
 }

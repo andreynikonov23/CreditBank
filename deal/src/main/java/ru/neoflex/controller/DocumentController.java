@@ -1,21 +1,20 @@
 package ru.neoflex.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.neoflex.exceptions.SignDocumentException;
+import ru.neoflex.service.DealService;
 import ru.neoflex.service.DocumentService;
-import ru.neoflex.service.DocumentServiceImpl;
 
 @RestController
 @Slf4j
 @RequestMapping("/deal/document")
 public class DocumentController {
     private final DocumentService documentService;
+    private final DealService dealService;
 
-    public DocumentController(DocumentService documentService) {
+    public DocumentController(DocumentService documentService, DealService dealService) {
         this.documentService = documentService;
+        this.dealService = dealService;
     }
 
     @PostMapping("/{statementId}/send")
@@ -28,6 +27,12 @@ public class DocumentController {
     public void requestSignDocuments(@PathVariable("statementId") String statementId) {
         log.info("/deal/{}/sign", statementId);
         documentService.registerSigning(statementId);
+    }
+
+    @PostMapping("/{statementId}/denied")
+    public void clientDenied(@PathVariable("statementId") String statementId) {
+        log.info("/deal/{}/denied", statementId);
+        dealService.clientDenied(statementId);
     }
 
     @PostMapping("/{statementId}/{code}")

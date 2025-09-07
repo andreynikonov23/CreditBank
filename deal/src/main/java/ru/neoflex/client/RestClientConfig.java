@@ -3,8 +3,9 @@ package ru.neoflex.client;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
+import ru.neoflex.enums.MicroserviceName;
+import ru.neoflex.exceptions.MicroserviceException;
 import ru.neoflex.exceptions.ScoringException;
 
 import java.util.NoSuchElementException;
@@ -21,7 +22,7 @@ public class RestClientConfig {
                     switch (statusCode.value()) {
                         case 422 -> throw new ScoringException(statusText);
                         case 404 -> throw new NoSuchElementException(statusText);
-                        default -> throw new HttpClientErrorException(statusCode, statusText);
+                        default -> throw new MicroserviceException(MicroserviceName.CALCULATOR, statusCode, statusText);
                     }
                 }).build();
     }

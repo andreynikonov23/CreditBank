@@ -48,27 +48,44 @@
             background-color: #f0f8ff;
         }
         .button {
-            /* существующие стили */
-            box-sizing: border-box; /* Добавьте это свойство */
+            box-sizing: border-box;
         }
 
         form {
-            margin: 25px 0; /* Добавьте отступы для формы */
-            display: block; /* Убедитесь, что форма блочная */
+            margin: 25px 0;
+            display: block;
+        }
+
+        button {
+            font-family: Arial, Helvetica, sans-serif;
+            color: white;
+            font-size: 18px;
+            padding: 30px;
+            border-radius: 9px;
         }
 
         button.button {
-            /* Сбросим стандартные стили кнопки */
-            background: linear-gradient(135deg, #2196F3, #1976D2);
             border: none;
-            font: inherit;
             cursor: pointer;
             width: 100%;
         }
 
-        button.button:hover {
+        button.sign-botton {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+        }
+
+        button.denied-botton {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+
+        button.sign-button:hover {
             background: linear-gradient(135deg, #1976D2, #0D47A1);
         }
+
+        button.denied-botton:hover {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+        }
+
         .footer {
             margin-top: 50px;
             font-size: 14px;
@@ -127,7 +144,10 @@
 
 <div class="button-container" style="margin-top: 40px; text-align: center;">
     <form th:action="${signingRequestUrl}" method="post">
-        <button type="submit" class="button">Запросить подписание документов</button>
+        <button type="submit" class="button sign-botton">Запросить подписание документов</button>
+    </form>
+    <form th:action="${deniedUrl}" method="post">
+        <button type="submit" class="button denied-botton">Отказаться</button>
     </form>
     <p style="font-size: 14px; color: #666; margin-top: 10px;">Для завершения оформления кредита необходимо подписать документ, после нажатия на "Перейти подписанию" мы вышлем вам ссылку на подпись</p>
 </div>

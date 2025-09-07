@@ -7,6 +7,7 @@ public interface DealClientService extends ApiClient{
     void requestSendDocuments(String statementId);
     void requestSignDocuments(String statementId);
     void signDocument(String statementId, String sesCode);
+    void clientDenied(String statementId);
     String findStatementById(String statementId);
     String getAllStatements();
 }

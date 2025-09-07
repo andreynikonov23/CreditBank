@@ -22,6 +22,7 @@ import ru.neoflex.dto.LoanStatementRequestDto;
 import ru.neoflex.enums.EmploymentStatus;
 import ru.neoflex.exceptions.ScoringException;
 import ru.neoflex.exceptions.SignDocumentException;
+import ru.neoflex.exceptions.StatementStatusException;
 import ru.neoflex.utils.TestData;
 
 import java.util.ArrayList;
@@ -86,7 +87,7 @@ public class GlobalExceptionHandlerTest {
                 .andReturn();
 
         String errorMessage = result.getResponse().getContentAsString();
-        assertEquals("Unfortunately, the loan calculation service is currently unavailable", errorMessage);
+        assertEquals("Unfortunately, this feature is currently unavailable.", errorMessage);
     }
 
     @Test
@@ -139,4 +140,23 @@ public class GlobalExceptionHandlerTest {
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                 .andReturn();
     }
+
+    @Test
+    public void handleStatementStatusExceptionTest() throws Exception {
+        String statementId = UUID.randomUUID().toString();
+        Mockito.doThrow(new StatementStatusException(String.format("the credit has already been issued for the statement {%s}", statementId))).when(statementClientService).clientDenied(statementId);
+
+        MvcResult mvcResult = mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/gateway/statement/offer")
+                                .param("denied-statement", statementId)
+                )
+                .andExpect(MockMvcResultMatchers.status().isConflict())
+                .andReturn();
+
+        String body = mvcResult.getResponse().getContentAsString();
+
+        assertEquals("the statement status exception: the credit has already been issued for the statement {" + statementId + "}", body);
+    }
+
+
 }

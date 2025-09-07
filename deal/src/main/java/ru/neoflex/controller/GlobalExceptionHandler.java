@@ -8,6 +8,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
+import ru.neoflex.enums.MicroserviceName;
+import ru.neoflex.exceptions.MicroserviceException;
+import ru.neoflex.exceptions.StatementStatusException;
 import ru.neoflex.exceptions.ScoringException;
 import ru.neoflex.exceptions.SignDocumentException;
 
@@ -24,9 +27,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(HttpClientErrorException.class)
-    public ResponseEntity<String> handleHttpClientExceptions(HttpClientErrorException ex) {
-        log.debug("MS calculator is not available: " + ex.getMessage());
+    @ExceptionHandler(MicroserviceException.class)
+    public ResponseEntity<String> handleMicroserviceExceptions(MicroserviceException ex) {
+        log.debug("MS " + ex.getMicroserviceName() + " is not available: " + ex.getMessage());
         return new ResponseEntity<>("Unfortunately, the loan calculation service is currently unavailable",
                 HttpStatus.SERVICE_UNAVAILABLE);
     }
@@ -48,7 +51,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<String> handleSignDocumentException(SignDocumentException ex) {
         String errorMessage = "the request sign document failed: " + ex.getMessage();
-        log.error(errorMessage);
+        log.debug(errorMessage);
         return new ResponseEntity<>(errorMessage, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<String> handleHttpClientExceptions(HttpClientErrorException ex) {
+        String errorMessage = "HTTP error: " + ex.getMessage();
+        log.debug(errorMessage);
+        return new ResponseEntity<>(errorMessage, ex.getStatusCode());
+    }
+
+    @ExceptionHandler(StatementStatusException.class)
+    public ResponseEntity<String> handleStatementStatusException(StatementStatusException ex) {
+        String errorMessage = "the statement status exception: " + ex.getMessage();
+        log.debug(errorMessage);
+        return new ResponseEntity<>(errorMessage, HttpStatus.CONFLICT);
     }
 }

@@ -10,4 +10,5 @@ public interface DealService {
     List<LoanOfferDto> calcLoanTerms(LoanStatementRequestDto loanStatementRequestDto);
     void selectLoanOffer(LoanOfferDto loanOfferDto);
     void calculate(String statementId, FinishRegistrationRequestDto finishRegistrationRequestDto);
+    void clientDenied(String statementId);
 }

@@ -10,20 +10,25 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.web.client.HttpClientErrorException;
 import ru.neoflex.client.CalculatorApiClient;
 import ru.neoflex.dto.FinishRegistrationRequestDto;
 import ru.neoflex.dto.LoanOfferDto;
 import ru.neoflex.dto.LoanStatementRequestDto;
 import ru.neoflex.dto.ScoringDataDto;
 import ru.neoflex.enums.EmploymentStatus;
+import ru.neoflex.enums.MicroserviceName;
+import ru.neoflex.exceptions.MicroserviceException;
+import ru.neoflex.exceptions.StatementStatusException;
 import ru.neoflex.exceptions.ScoringException;
 import ru.neoflex.exceptions.SignDocumentException;
+import ru.neoflex.kafka.KafkaSender;
+import ru.neoflex.service.DealService;
 import ru.neoflex.service.DocumentService;
 import ru.neoflex.utils.TestData;
 
@@ -48,6 +53,10 @@ public class GlobalExceptionHandlerTest {
     private CalculatorApiClient calculatorApiClient;
     @MockitoBean
     private DocumentService documentService;
+    @MockitoSpyBean
+    private DealService dealService;
+    @MockitoBean
+    private KafkaSender kafkaSender;
 
     @Test
     public void handleValidationExceptionsTest() throws Exception {
@@ -74,10 +83,10 @@ public class GlobalExceptionHandlerTest {
     }
 
     @Test
-    public void handleHttpClientExceptionsTest() throws Exception {
+    public void handleCalculatorExceptionsTest() throws Exception {
         LoanStatementRequestDto loanStatementRequestDto = TestData.getValidLoanStatementRequestDto();
 
-        Mockito.when(calculatorApiClient.offers(loanStatementRequestDto)).thenThrow(new HttpClientErrorException(HttpStatus.GATEWAY_TIMEOUT));
+        Mockito.when(calculatorApiClient.offers(loanStatementRequestDto)).thenThrow(new MicroserviceException(MicroserviceName.CALCULATOR, HttpStatus.GATEWAY_TIMEOUT));
 
         String jsonRequestBody = objectMapper.writeValueAsString(loanStatementRequestDto);
         MvcResult result = mockMvc.perform(
@@ -143,5 +152,21 @@ public class GlobalExceptionHandlerTest {
         String body = mvcResult.getResponse().getContentAsString();
 
         assertEquals("the request failed scoring: the client is unemployed", body);
+    }
+
+    @Test
+    public void handleStatementStatusExceptionTest() throws Exception {
+        String statementId = UUID.randomUUID().toString();
+        Mockito.doThrow(new StatementStatusException(String.format("the credit has already been issued for the statement {%s}", statementId))).when(dealService).clientDenied(statementId);
+
+        MvcResult mvcResult = mockMvc.perform(
+                        MockMvcRequestBuilders.post("/deal/document/" + statementId + "/denied")
+                )
+                .andExpect(MockMvcResultMatchers.status().isConflict())
+                .andReturn();
+
+        String body = mvcResult.getResponse().getContentAsString();
+
+        assertEquals("the statement status exception: the credit has already been issued for the statement {" + statementId + "}", body);
     }
 }

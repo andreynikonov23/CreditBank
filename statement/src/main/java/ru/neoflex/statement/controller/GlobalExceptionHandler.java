@@ -8,6 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
+import ru.neoflex.statement.exceptions.MicroserviceException;
+import ru.neoflex.statement.exceptions.StatementStatusException;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -22,10 +24,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler
-    public ResponseEntity<String> handleHttpClientExceptions(HttpClientErrorException ex) {
-        log.debug("MS calculator is not available: " + ex.getMessage());
-        return new ResponseEntity<>("Unfortunately, the loan calculation service is currently unavailable",
+    @ExceptionHandler(MicroserviceException.class)
+    public ResponseEntity<String> handleServiceExceptions(MicroserviceException ex) {
+        log.debug("MS " + ex.getMicroserviceName() + " is not available: " + ex.getMessage());
+        return new ResponseEntity<>("Unfortunately, this feature is currently unavailable.",
                 HttpStatus.SERVICE_UNAVAILABLE);
     }
 
@@ -34,5 +36,19 @@ public class GlobalExceptionHandler {
         String errorMessage = "no data was found in the database: " + ex.getMessage();
         log.debug(errorMessage);
         return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<String> handleHttpClientExceptions(HttpClientErrorException ex) {
+        String errorMessage = "HTTP error: " + ex.getMessage();
+        log.debug(errorMessage);
+        return new ResponseEntity<>(errorMessage, ex.getStatusCode());
+    }
+
+    @ExceptionHandler(StatementStatusException.class)
+    public ResponseEntity<String> handleStatementStatusException(StatementStatusException ex) {
+        String errorMessage = "the statement status exception: " + ex.getMessage();
+        log.debug(errorMessage);
+        return new ResponseEntity<>(errorMessage, HttpStatus.CONFLICT);
     }
 }

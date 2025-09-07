@@ -48,4 +48,16 @@ public class StatementClientServiceImpl implements StatementClientService{
                 .toBodilessEntity();
         log.debug("the request was successfully {}{} offers executed.", uri, endpoint);
     }
+
+    @Override
+    public void clientDenied(String statementId) {
+        String endpoint = "/offer" + "?denied-statement=" + statementId;
+
+        log.trace("the beginning of sending a request to {}{} MS deal", uri, endpoint);
+        restClient.post()
+                .uri(uri + endpoint)
+                .retrieve()
+                .toBodilessEntity();
+        log.debug("the request was successfully {}{} offers executed.", uri, endpoint);
+    }
 }

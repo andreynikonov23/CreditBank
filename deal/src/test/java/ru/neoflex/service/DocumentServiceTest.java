@@ -11,14 +11,17 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 import ru.neoflex.dao.DAO;
 import ru.neoflex.dto.EmailMessage;
+import ru.neoflex.dto.FinishRegistrationRequestDto;
 import ru.neoflex.enums.ApplicationStatus;
 import ru.neoflex.enums.CreditStatus;
 import ru.neoflex.exceptions.ScoringException;
 import ru.neoflex.exceptions.SignDocumentException;
+import ru.neoflex.exceptions.StatementStatusException;
 import ru.neoflex.kafka.KafkaSender;
 import ru.neoflex.kafka.TopicName;
 import ru.neoflex.model.Client;
 import ru.neoflex.model.Statement;
+import ru.neoflex.utils.TestData;
 
 import java.util.UUID;
 
@@ -61,9 +64,6 @@ public class DocumentServiceTest {
     @Transactional
     @Test
     public void registerSigning() {
-        //Проверка генерации sesCode
-        //Проверка на содержание данных в html
-        //Проверка вызовов sendMessage у kafka
         String statementId = "47936ce8-e8c6-496e-a33a-f8f1d4c26c74";
 
         ArgumentCaptor<EmailMessage> captor = ArgumentCaptor.forClass(EmailMessage.class);
@@ -90,29 +90,55 @@ public class DocumentServiceTest {
     @Transactional
     @Test
     public void signDocumentTest() {
-        //Проверка условий sesCode
         String statementId = "b084413b-9cbc-4791-9732-f827be4a827a";
         String sesCode = "4ee3caf9-b1bb-4e4b-aed0-b0c2bc49151a";
+        ArgumentCaptor<EmailMessage> captor = ArgumentCaptor.forClass(EmailMessage.class);
 
         documentService.signDocument(statementId, sesCode);
 
-        Statement statement = statementDAO.findById(UUID.fromString(statementId));
+        Mockito.verify(kafkaSender).sendMessage(captor.capture(), Mockito.eq(TopicName.CREDIT_ISSUED));
+        EmailMessage emailMessage = captor.getValue();
 
-        assertEquals(ApplicationStatus.DOCUMENT_SIGNED, statement.getStatus());
+        String html = emailMessage.getText();
+        assertEquals("maximov.mv@gmail.com", emailMessage.getAddress());
+        assertTrue(html.contains("<div class=\"status-text\">Поздравляем! Ваш кредит успешно оформлен</div>"));
+        assertTrue(html.contains("<div class=\"data-value\">3000000,00 руб.</div>"));
+        assertTrue(html.contains("<div class=\"data-value\">3584400,00 руб.</div>"));
+        assertTrue(html.contains("<div class=\"payment-date\">21.09.2025</div>"));
+
+        Statement statement = statementDAO.findById(UUID.fromString(statementId));
+        assertEquals(ApplicationStatus.CREDIT_ISSUES, statement.getStatus());
         assertNotNull(statement.getSignDate());
-        assertEquals("document signed", statement.getStatusHistory().get(statement.getStatusHistory().size()-1).getStatus());
+        assertEquals("document signed", statement.getStatusHistory().get(statement.getStatusHistory().size()-2).getStatus());
+        assertEquals("credit issues", statement.getStatusHistory().get(statement.getStatusHistory().size()-1).getStatus());
         assertEquals(CreditStatus.ISSUED, statement.getCredit().getCreditStatus());
     }
 
     @Transactional
     @Test
     public void signDocumentWithInvalidSesCodeTest() {
-        //Проверка условий sesCode
         String statementId = "b084413b-9cbc-4791-9732-f827be4a827a";
         String sesCode = "4ee3caf9-b4677-4e4b-aed0-b0c2bc49151a";
 
         assertThrows(SignDocumentException.class, () -> {
             documentService.signDocument(statementId, sesCode);
+        });
+    }
+
+    @Test
+    public void documentEndpointsForDeniedCredit() {
+        String statementId = "0fde9ba9-6735-4029-90d8-39749c676da4";
+
+        assertThrows(StatementStatusException.class, () -> {
+            documentService.sendDocument(statementId);
+        });
+
+        assertThrows(StatementStatusException.class, () -> {
+            documentService.registerSigning(statementId);
+        });
+
+        assertThrows(StatementStatusException.class, () -> {
+            documentService.signDocument(statementId, UUID.randomUUID().toString());
         });
     }
 }

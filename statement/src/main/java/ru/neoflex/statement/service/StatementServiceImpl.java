@@ -25,4 +25,9 @@ public class StatementServiceImpl implements StatementService {
     public void selectLoanOffer(LoanOfferDto loanOfferDto) {
         dealApiClient.select(loanOfferDto);
     }
+
+    @Override
+    public void clientDenied(String statementId) {
+        dealApiClient.clientDenied(statementId);
+    }
 }

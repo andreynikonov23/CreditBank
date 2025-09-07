@@ -51,4 +51,16 @@ public class DealApiClientImpl implements DealApiClient{
                 .toBodilessEntity();
         log.debug("the request was successfully {}{} offers executed.", dealUri, endpoint);
     }
+
+    @Override
+    public void clientDenied(String statementId) {
+        String endpoint = "/select" + "?denied-statement=" + statementId;
+
+        log.trace("the beginning of sending a request to {}{} MS deal", dealUri, endpoint);
+        restClient.post()
+                .uri(dealUri + endpoint)
+                .retrieve()
+                .toBodilessEntity();
+        log.debug("the request was successfully {}{} offers executed.", dealUri, endpoint);
+    }
 }

@@ -18,6 +18,7 @@ import ru.neoflex.client.StatementClientService;
 import ru.neoflex.dto.FinishRegistrationRequestDto;
 import ru.neoflex.dto.LoanOfferDto;
 import ru.neoflex.dto.LoanStatementRequestDto;
+import ru.neoflex.exceptions.StatementStatusException;
 import ru.neoflex.utils.TestData;
 
 import java.util.List;
@@ -77,6 +78,18 @@ public class ApiControllerTest {
     }
 
     @Test
+    public void selectLoanOfferWithoutBodyTest() throws Exception {
+        MvcResult result = mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/gateway/statement/offer")
+                )
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String responseBody = result.getResponse().getContentAsString();
+        assertEquals("HTTP error: 400 BAD_REQUEST \"loan offer is null\"", responseBody);
+    }
+
+    @Test
     public void calculateTest() throws Exception {
         String testStatementId = UUID.randomUUID().toString();
         FinishRegistrationRequestDto finishRegistrationRequestDto = TestData.getFinishRegistrationRequestDto();
@@ -129,5 +142,29 @@ public class ApiControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
         Mockito.verify(dealClientService).signDocument(statementId, sesCode);
+    }
+
+    @Test
+    public void clientDeniedAfterCalcLoanOffers() throws Exception {
+        String statementId = UUID.randomUUID().toString();
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/gateway/statement/offer")
+                                .param("denied-statement", statementId)
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+    }
+
+    @Test
+    public void clientDeniedAfterCreatingDocuments() throws Exception {
+        String statementId = UUID.randomUUID().toString();
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/gateway/deal/document/" + statementId +"/denied")
+                                .param("denied-statement", statementId)
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
     }
 }

@@ -16,7 +16,6 @@ import ru.neoflex.dto.LoanStatementRequestDto;
 import ru.neoflex.service.DealService;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 @Slf4j
@@ -35,9 +34,16 @@ public class DealController {
     }
 
     @PostMapping("/select")
-    public void selectLoanOffer(@Valid @RequestBody LoanOfferDto loanOfferDto) {
-        log.info("/deal/select/ with body {}", loanOfferDto);
-        dealService.selectLoanOffer(loanOfferDto);
+    public void selectLoanOffer(@RequestParam(value = "denied-statement", required = false)String statementId, @Valid @RequestBody(required = false) LoanOfferDto loanOfferDto) {
+        log.info("/deal/select/ with param {} and body {}", statementId, loanOfferDto);
+        if (statementId != null) {
+            dealService.clientDenied(statementId);
+        } else if (loanOfferDto == null) {
+            String errorMessage = "loan offer is null";
+            log.error("/deal/select/ error: {}", errorMessage);
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errorMessage);
+        }else
+            dealService.selectLoanOffer(loanOfferDto);
     }
 
     @PostMapping("/calculate")

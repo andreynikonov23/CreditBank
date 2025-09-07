@@ -82,6 +82,32 @@ public class DealControllerTest {
     }
 
     @Test
+    public void clientDeniedTest() throws Exception {
+        String statementId = "b8768740-1b18-4638-a772-5662031aca5a";
+        Mockito.doNothing().when(dealService).clientDenied(statementId);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/deal/select")
+                        .param("denied-statement", statementId)
+        )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        Mockito.verify(dealService).clientDenied(statementId);
+    }
+
+    @Test
+    public void selectLoanOfferWithoutBodyTest() throws Exception {
+        MvcResult result = mockMvc.perform(
+                        MockMvcRequestBuilders.post("/deal/select")
+                )
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        String responseBody = result.getResponse().getContentAsString();
+        assertEquals("HTTP error: 400 loan offer is null", responseBody);
+    }
+
+    @Test
     public void calculateTest() throws Exception {
         String testStatementId = UUID.randomUUID().toString();
         FinishRegistrationRequestDto finishRegistrationRequestDto = TestData.getFinishRegistrationRequestDto();

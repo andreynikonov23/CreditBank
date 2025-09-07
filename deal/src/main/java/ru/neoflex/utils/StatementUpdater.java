@@ -1,7 +1,6 @@
 package ru.neoflex.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import ru.neoflex.dto.LoanOfferDto;
 import ru.neoflex.dto.StatementStatusHistoryDto;
 import ru.neoflex.enums.ApplicationStatus;
@@ -69,16 +68,22 @@ public class StatementUpdater {
         log.debug("ses_code for {} is generated: {}", statement.getId(), sesCode);
     }
 
-    public static void setDocumentSignedStatus(Statement statement) {
-        statement.setStatus(ApplicationStatus.DOCUMENT_SIGNED);
+    public static void setCreditIssuesStatus(Statement statement) {
+        statement.setStatus(ApplicationStatus.CREDIT_ISSUES);
         statement.setSignDate(LocalDate.now());
 
-        StatementStatusHistoryDto statusHistory = new StatementStatusHistoryDto();
-        statusHistory.setStatus("document signed");
-        statusHistory.setChangeType(ChangeType.MANUAL);
-        statusHistory.setTime(LocalDate.now());
-        statement.getStatusHistory().add(statusHistory);
-        log.debug("statement {} has the status DOCUMENT_SIGNED", statement.getId());
+        StatementStatusHistoryDto documentSignStatusHistory = new StatementStatusHistoryDto();
+        documentSignStatusHistory.setStatus("document signed");
+        documentSignStatusHistory.setChangeType(ChangeType.MANUAL);
+        documentSignStatusHistory.setTime(LocalDate.now());
+        statement.getStatusHistory().add(documentSignStatusHistory);
+
+        StatementStatusHistoryDto creditIssuesStatusHistory = new StatementStatusHistoryDto();
+        creditIssuesStatusHistory.setStatus("credit issues");
+        creditIssuesStatusHistory.setChangeType(ChangeType.MANUAL);
+        creditIssuesStatusHistory.setTime(LocalDate.now());
+        statement.getStatusHistory().add(creditIssuesStatusHistory);
+        log.debug("statement {} has the status CREDIT_ISSUES", statement.getId());
     }
 
     public static void deniedStatement(Statement statement) {
@@ -90,5 +95,16 @@ public class StatementUpdater {
         statementStatusHistoryDto.setTime(LocalDate.now());
         statement.getStatusHistory().add(statementStatusHistoryDto);
         log.debug("statement [{}] - denied", statement);
+    }
+
+    public static void clientDeniedStatement(Statement statement) {
+        statement.setStatus(ApplicationStatus.CLIENT_DENIED);
+
+        StatementStatusHistoryDto statementStatusHistoryDto = new StatementStatusHistoryDto();
+        statementStatusHistoryDto.setStatus("client denied statement");
+        statementStatusHistoryDto.setChangeType(ChangeType.MANUAL);
+        statementStatusHistoryDto.setTime(LocalDate.now());
+        statement.getStatusHistory().add(statementStatusHistoryDto);
+        log.debug("statement [{}] - denied by client", statement);
     }
 }

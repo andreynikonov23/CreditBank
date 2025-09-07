@@ -8,4 +8,5 @@ import java.util.List;
 public interface StatementService {
     List<LoanOfferDto> calcLoanOffers(LoanStatementRequestDto loanStatementRequestDto);
     void selectLoanOffer(LoanOfferDto loanOfferDto);
+    void clientDenied(String statementId);
 }

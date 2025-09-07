@@ -72,5 +72,15 @@ public class StatementControllerTest {
                 .andReturn();
     }
 
+    @Test
+    public void selectLoanOfferWithoutBodyTest() throws Exception {
+        MvcResult result = mockMvc.perform(
+                        MockMvcRequestBuilders.post("/statement/offer")
+                )
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
 
+        String responseBody = result.getResponse().getContentAsString();
+        assertEquals("HTTP error: 400 loan offer is null", responseBody);
+    }
 }

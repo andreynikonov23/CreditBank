@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кредит успешно оформлен</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            color: #000;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: #fff;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+        }
+        .document-title {
+            font-size: 22px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            color: #2e7d32;
+        }
+        .document-content {
+            font-size: 16px;
+            text-align: justify;
+        }
+        .data-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        .data-label {
+            width: 250px;
+            font-weight: bold;
+        }
+        .data-value {
+            flex: 1;
+        }
+        .status-box {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #4caf50;
+            background-color: #f1f8e9;
+            text-align: center;
+            border-radius: 4px;
+        }
+        .status-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        .credit-terms {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background-color: #f0f8ff;
+        }
+        .additional-info {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background-color: #fff8f0;
+        }
+        .payment-schedule {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+        .payment-row {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            padding: 8px 0;
+        }
+        .payment-header {
+            font-weight: bold;
+            background-color: #e8e8e8;
+        }
+        .payment-number {
+            width: 50px;
+        }
+        .payment-date {
+            width: 100px;
+        }
+        .payment-amount {
+            width: 120px;
+            text-align: right;
+        }
+        .payment-interest {
+            width: 120px;
+            text-align: right;
+        }
+        .payment-debt {
+            width: 120px;
+            text-align: right;
+        }
+        .payment-remaining {
+            width: 120px;
+            text-align: right;
+        }
+        .icon {
+            font-size: 24px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .badge-green {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+        .badge-blue {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #bbdefb;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="document-title">Кредитный договор</div>
+    <div>№ договора: <span th:text="${credit.id}">КР-123456789</span></div>
+    <div>Дата оформления: <span th:text="${#temporals.format(statement.signDate, 'dd.MM.yyyy')}">20.11.2023</span></div>
+</div>
+
+<div class="document-content">
+    <p>Уважаемый(ая) <span th:text="${statement.client.lastname + ' ' + statement.client.firstname + ' ' + statement.client.middleName}">Иванов Иван Иванович</span>,</p>
+
+    <div class="status-box">
+        <span class="icon">✅</span>
+        <div class="status-text">Поздравляем! Ваш кредит успешно оформлен</div>
+    </div>
+
+    <p>Мы рады сообщить, что Ваша заявка на кредит была одобрена, и кредитные средства скоро поступят на Ваш счет.</p>
+
+    <div class="credit-terms">
+        <p><strong>Основные условия кредита:</strong></p>
+        <div class="data-row">
+            <div class="data-label">Сумма кредита:</div>
+            <div class="data-value" th:text="${#numbers.formatDecimal(credit.amount, 1, 2, 'COMMA') + ' руб.'}">500 000 руб.</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Срок кредита:</div>
+            <div class="data-value" th:text="${credit.term + ' месяцев'}">36 месяцев</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Процентная ставка:</div>
+            <div class="data-value" th:text="${#numbers.formatDecimal(credit.rate, 1, 2) + ' % годовых'}">12.5 % годовых</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Ежемесячный платеж:</div>
+            <div class="data-value" th:text="${#numbers.formatDecimal(credit.monthlyPayment, 1, 2, 'COMMA') + ' руб.'}">16 666 руб.</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Общая сумма выплат (ПСК):</div>
+            <div class="data-value" th:text="${#numbers.formatDecimal(credit.psk, 1, 2, 'COMMA') + ' руб.'}">600 000 руб.</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Дата первого платежа:</div>
+            <div class="data-value" th:text="${#temporals.format(credit.getPaymentSchedule().get(1).date, 'dd.MM.yyyy')}">20.12.2023</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Счет для зачисления:</div>
+            <div class="data-value" th:text="${statement.client.accountNumber}">40817810099910004312</div>
+        </div>
+    </div>
+
+    <div class="additional-info">
+        <p><strong>Дополнительные условия:</strong></p>
+        <div class="data-row">
+            <div class="data-label">Страхование:</div>
+            <div class="data-value">
+                <span th:if="${credit.insuranceEnable}">Подключено <span class="badge badge-green">ДА</span></span>
+                <span th:unless="${credit.insuranceEnable}">Не подключено <span class="badge">НЕТ</span></span>
+            </div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Зарплатный клиент:</div>
+            <div class="data-value">
+                <span th:if="${credit.salaryClient}">Да <span class="badge badge-blue">ДА</span></span>
+                <span th:unless="${credit.salaryClient}">Нет <span class="badge">НЕТ</span></span>
+            </div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Статус кредита:</div>
+            <div class="data-value" th:text="${credit.creditStatus}">APPROVED</div>
+        </div>
+    </div>
+
+    <div class="payment-schedule" th:if="${credit.paymentSchedule != null and !credit.paymentSchedule.isEmpty()}">
+        <p><strong>График платежей:</strong></p>
+
+        <div class="payment-row payment-header">
+            <div class="payment-number">№</div>
+            <div class="payment-date">Дата платежа</div>
+            <div class="payment-amount">Сумма платежа</div>
+            <div class="payment-interest">Проценты</div>
+            <div class="payment-debt">Основной долг</div>
+            <div class="payment-remaining">Остаток долга</div>
+        </div>
+
+        <div class="payment-row" th:each="payment : ${credit.paymentSchedule}">
+            <div class="payment-number" th:text="${payment.number}">1</div>
+            <div class="payment-date" th:text="${#temporals.format(payment.date, 'dd.MM.yyyy')}">20.12.2023</div>
+            <div class="payment-amount" th:text="${#numbers.formatDecimal(payment.totalPayment, 1, 2, 'COMMA') + ' руб.'}">16 666 руб.</div>
+            <div class="payment-interest" th:text="${#numbers.formatDecimal(payment.interestPayment, 1, 2, 'COMMA') + ' руб.'}">5 208 руб.</div>
+            <div class="payment-debt" th:text="${#numbers.formatDecimal(payment.debtPayment, 1, 2, 'COMMA') + ' руб.'}">11 458 руб.</div>
+            <div class="payment-remaining" th:text="${#numbers.formatDecimal(payment.remainingDebt, 1, 2, 'COMMA') + ' руб.'}">488 542 руб.</div>
+        </div>
+    </div>
+
+    <p>Благодарим за доверие и выбор нашего Банка!</p>
+
+    <p>С уважением,<br>Кредитный отдел Банка</p>
+</div>
+</body>
+</html>

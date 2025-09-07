@@ -31,7 +31,7 @@ public class StatementDaoImplTest {
     @Test
     public void getAllTest() {
         List<Statement> clients = statementDAO.getAll();
-        assertEquals(4, clients.size());
+        assertEquals(6, clients.size());
     }
 
     @Test

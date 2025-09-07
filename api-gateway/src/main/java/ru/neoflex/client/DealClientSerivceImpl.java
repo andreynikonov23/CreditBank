@@ -69,6 +69,17 @@ public class DealClientSerivceImpl implements DealClientService{
     }
 
     @Override
+    public void clientDenied(String statementId) {
+        String endpoint = "/document/" + statementId + "/denied";
+        log.trace("the beginning of sending a request to {}{} MS deal", uri, endpoint);
+        restClient.post()
+                .uri(uri + endpoint)
+                .retrieve()
+                .toBodilessEntity();
+        log.debug("the request was successfully {}{}.", uri, endpoint);
+    }
+
+    @Override
     public String findStatementById(String statementId) {
         String endpoint = "/admin/statement/" + statementId;
         log.trace("the beginning of sending a request to {}{} MS deal", uri, endpoint);

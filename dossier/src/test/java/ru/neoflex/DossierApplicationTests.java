@@ -8,6 +8,8 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeUtility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,8 @@ import ru.neoflex.service.DossierService;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,42 +54,25 @@ class DossierApplicationTests {
 		Mockito.doNothing().when(javaMailSender).send(any(MimeMessage.class));
 	}
 
-	@Test
-	void createDocumentTest() throws MessagingException, IOException {
-		testEmailMessage.setTheme(MessageTheme.RESULT_CREDIT_CALC);
-		testEmailMessage.setText("Your credit calculating result ...");
+	@ParameterizedTest
+	@CsvSource({
+			"FINISH_REGISTRATION, 'Please complete the registration', finishRegistrationListener",
+			"RESULT_CREDIT_CALC, 'Your credit calculating result ...', createDocumentsListener",
+			"CREDIT_AGREEMENT, 'Your credit agreement ...', sendDocumentsListener",
+			"SIGNATURE_REGISTRATION, 'The signature is completed', sendSesListener",
+			"CREDIT_ISSUED, 'credit issued', creditIssuedListener",
+			"STATEMENT_DENIED, 'Your statement has been rejected', statementDeniedListener"
+	})
+	void sendMessageTest(String themeText, String text, String methodName) throws MessagingException, UnsupportedEncodingException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+		MessageTheme theme = MessageTheme.valueOf(themeText);
+		testEmailMessage.setTheme(theme);
+		testEmailMessage.setText(text);
 
 		ArgumentCaptor<MimeMessage> captor = ArgumentCaptor.forClass(MimeMessage.class);
 
-		kafkaListener.createDocumentsListener(testEmailMessage);
-		Mockito.verify(javaMailSender).send(captor.capture());
-		MimeMessage sendingMessage = captor.getValue();
+		Method method = kafkaListener.getClass().getMethod(methodName, EmailMessage.class);
+		method.invoke(kafkaListener, testEmailMessage);
 
-		assertMimeMessage(sendingMessage);
-	}
-
-	@Test
-	void sendDocumentTest() throws MessagingException, IOException {
-		testEmailMessage.setTheme(MessageTheme.CREDIT_AGREEMENT);
-		testEmailMessage.setText("Your credit agreement ...");
-
-		ArgumentCaptor<MimeMessage> captor = ArgumentCaptor.forClass(MimeMessage.class);
-
-		kafkaListener.sendDocumentsListener(testEmailMessage);
-		Mockito.verify(javaMailSender).send(captor.capture());
-		MimeMessage sendingMessage = captor.getValue();
-
-		assertMimeMessage(sendingMessage);
-	}
-
-	@Test
-	void sendSesTest() throws MessagingException, IOException {
-		testEmailMessage.setTheme(MessageTheme.SIGNATURE_REGISTRATION);
-		testEmailMessage.setText("Sign documents ...");
-
-		ArgumentCaptor<MimeMessage> captor = ArgumentCaptor.forClass(MimeMessage.class);
-
-		kafkaListener.sendSesListener(testEmailMessage);
 		Mockito.verify(javaMailSender).send(captor.capture());
 		MimeMessage sendingMessage = captor.getValue();
 
