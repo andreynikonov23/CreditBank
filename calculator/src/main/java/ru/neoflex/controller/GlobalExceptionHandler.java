@@ -1,5 +1,8 @@
 package ru.neoflex.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +24,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
+    @ApiResponse(responseCode = "422", description = "Failed scoring")
     @ExceptionHandler
     public ResponseEntity<String> handleScoringExceptions(ScoringException ex) {
         String errorMessage = "the request failed scoring: " + ex.getMessage();

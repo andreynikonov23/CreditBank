@@ -1,5 +1,6 @@
 package ru.neoflex.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
+@Schema
 public class LoanOfferDto implements Comparable<LoanOfferDto> {
     private UUID statementId;
     private BigDecimal requestedAmount;

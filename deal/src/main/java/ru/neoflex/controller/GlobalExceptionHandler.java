@@ -8,7 +8,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
-import ru.neoflex.enums.MicroserviceName;
 import ru.neoflex.exceptions.MicroserviceException;
 import ru.neoflex.exceptions.StatementStatusException;
 import ru.neoflex.exceptions.ScoringException;

@@ -1,5 +1,6 @@
 package ru.neoflex.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Getter
 @Setter
+@Schema
 public class ScoringDataDto {
     @NotNull(message = "amount is null")
     private BigDecimal amount;
